@@ -43,7 +43,7 @@ class _SelectProviderTypeScreenState extends State<SelectProviderTypeScreen>
             end: Alignment.bottomCenter,
             colors: [
               AppColors.white,
-              AppColors.lightBlue.withOpacity(0.2),
+              AppColors.lightBlue.withValues(alpha: 0.2),
             ],
           ),
         ),
@@ -67,7 +67,7 @@ class _SelectProviderTypeScreenState extends State<SelectProviderTypeScreen>
                               borderRadius: BorderRadius.circular(12),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.1),
+                                  color: Colors.black.withValues(alpha: 0.1),
                                   blurRadius: 10,
                                   offset: const Offset(0, 4),
                                 ),
@@ -138,7 +138,7 @@ class _SelectProviderTypeScreenState extends State<SelectProviderTypeScreen>
                             gradient: isSelected
                                 ? LinearGradient(
                               colors: [
-                                AppColors.lightRed.withOpacity(0.1),
+                                AppColors.lightRed.withValues(alpha: 0.1),
                                 AppColors.selectedBackground,
                               ],
                               begin: Alignment.topLeft,
@@ -156,8 +156,8 @@ class _SelectProviderTypeScreenState extends State<SelectProviderTypeScreen>
                             boxShadow: [
                               BoxShadow(
                                 color: isSelected
-                                    ? AppColors.primaryRed.withOpacity(0.2)
-                                    : Colors.black.withOpacity(0.05),
+                                    ? AppColors.primaryRed.withValues(alpha: 0.2)
+                                    : Colors.black.withValues(alpha: 0.05),
                                 blurRadius: isSelected ? 15 : 10,
                                 offset: Offset(0, isSelected ? 6 : 4),
                               ),
@@ -182,7 +182,7 @@ class _SelectProviderTypeScreenState extends State<SelectProviderTypeScreen>
                                       : LinearGradient(
                                     colors: [
                                       AppColors.lightBlue,
-                                      AppColors.lightBlue.withOpacity(0.7),
+                                      AppColors.lightBlue.withValues(alpha: 0.7),
                                     ],
                                   ),
                                   borderRadius:
@@ -190,7 +190,7 @@ class _SelectProviderTypeScreenState extends State<SelectProviderTypeScreen>
                                   boxShadow: [
                                     BoxShadow(
                                       color: isSelected
-                                          ? AppColors.primaryRed.withOpacity(0.3)
+                                          ? AppColors.primaryRed.withValues(alpha: 0.3)
                                           : Colors.transparent,
                                       blurRadius: 8,
                                       offset: const Offset(0, 4),

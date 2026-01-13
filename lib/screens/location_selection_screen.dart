@@ -55,7 +55,7 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
             end: Alignment.bottomCenter,
             colors: [
               AppColors.white,
-              AppColors.lightBlue.withOpacity(0.2),
+              AppColors.lightBlue.withValues(alpha: 0.2),
             ],
           ),
         ),
@@ -69,7 +69,7 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
                   color: AppColors.white,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
+                      color: Colors.black.withValues(alpha: 0.05),
                       blurRadius: 10,
                       offset: const Offset(0, 2),
                     ),
@@ -250,7 +250,7 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -264,8 +264,8 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        AppColors.lightRed.withOpacity(0.2),
-                        AppColors.primaryRed.withOpacity(0.1),
+                        AppColors.lightRed.withValues(alpha: 0.2),
+                        AppColors.primaryRed.withValues(alpha: 0.1),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(AppBorderRadius.small),
@@ -334,7 +334,7 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
               gradient: isSelected
                   ? LinearGradient(
                 colors: [
-                  AppColors.lightRed.withOpacity(0.1),
+                  AppColors.lightRed.withValues(alpha: 0.1),
                   AppColors.selectedBackground,
                 ],
               )
@@ -348,8 +348,8 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
               boxShadow: [
                 BoxShadow(
                   color: isSelected
-                      ? AppColors.primaryRed.withOpacity(0.1)
-                      : Colors.black.withOpacity(0.05),
+                      ? AppColors.primaryRed.withValues(alpha: 0.1)
+                      : Colors.black.withValues(alpha: 0.05),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -368,7 +368,7 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
                         : LinearGradient(
                       colors: [
                         AppColors.lightBlue,
-                        AppColors.lightBlue.withOpacity(0.7),
+                        AppColors.lightBlue.withValues(alpha: 0.7),
                       ],
                     ),
                     shape: BoxShape.circle,

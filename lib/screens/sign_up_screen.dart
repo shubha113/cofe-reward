@@ -1,3 +1,4 @@
+import 'package:cofe_reward/screens/sign_up2_screen.dart';
 import 'package:flutter/material.dart';
 import '../constants/app_constants.dart';
 import '../models/service_provider.dart';
@@ -21,8 +22,8 @@ class _SignUpScreenState extends State<SignUpScreen> with TickerProviderStateMix
   final TextEditingController _companyController = TextEditingController();
   final TextEditingController _jobTitleController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
 
   String? selectedState;
   String? selectedCity;
@@ -68,8 +69,8 @@ class _SignUpScreenState extends State<SignUpScreen> with TickerProviderStateMix
     _companyController.dispose();
     _jobTitleController.dispose();
     _emailController.dispose();
-    _phoneController.dispose();
     _locationController.dispose();
+    _addressController.dispose();
     _animationController.dispose();
     _progressController.dispose();
     super.dispose();
@@ -152,7 +153,7 @@ class _SignUpScreenState extends State<SignUpScreen> with TickerProviderStateMix
               borderRadius: BorderRadius.circular(AppBorderRadius.medium),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -210,7 +211,7 @@ class _SignUpScreenState extends State<SignUpScreen> with TickerProviderStateMix
             end: Alignment.bottomCenter,
             colors: [
               AppColors.white,
-              AppColors.lightBlue.withOpacity(0.2),
+              AppColors.lightBlue.withValues(alpha: 0.2),
             ],
           ),
         ),
@@ -223,7 +224,7 @@ class _SignUpScreenState extends State<SignUpScreen> with TickerProviderStateMix
                   color: AppColors.white,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
+                      color: Colors.black.withValues(alpha: 0.08),
                       blurRadius: 20,
                       offset: const Offset(0, 4),
                     ),
@@ -237,19 +238,7 @@ class _SignUpScreenState extends State<SignUpScreen> with TickerProviderStateMix
                       child: Row(
                         children: [
                           IconButton(
-                            onPressed: () {
-                              print('STATE: $selectedState');
-                              print('CITY: $selectedCity');
-
-                              if (selectedState != null && selectedCity != null) {
-                                Navigator.pop(context, {
-                                  'state': selectedState!,
-                                  'city': selectedCity!,
-                                });
-                              }
-                            },
-
-
+                            onPressed: () => Navigator.pop(context),
                             icon: Container(
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
@@ -304,7 +293,7 @@ class _SignUpScreenState extends State<SignUpScreen> with TickerProviderStateMix
                                             shape: BoxShape.circle,
                                             boxShadow: [
                                               BoxShadow(
-                                                color: AppColors.primaryRed.withOpacity(0.4),
+                                                color: AppColors.primaryRed.withValues(alpha: 0.4),
                                                 blurRadius: 12,
                                                 offset: const Offset(0, 4),
                                               ),
@@ -348,7 +337,7 @@ class _SignUpScreenState extends State<SignUpScreen> with TickerProviderStateMix
                                             borderRadius: BorderRadius.circular(2),
                                             boxShadow: [
                                               BoxShadow(
-                                                color: AppColors.primaryRed.withOpacity(0.3),
+                                                color: AppColors.primaryRed.withValues(alpha: 0.3),
                                                 blurRadius: 8,
                                                 offset: const Offset(0, 2),
                                               ),
@@ -453,13 +442,13 @@ class _SignUpScreenState extends State<SignUpScreen> with TickerProviderStateMix
                                     decoration: BoxDecoration(
                                       gradient: LinearGradient(
                                         colors: [
-                                          AppColors.primaryRed.withOpacity(0.1),
-                                          AppColors.lightRed.withOpacity(0.1),
+                                          AppColors.primaryRed.withValues(alpha: 0.1),
+                                          AppColors.lightRed.withValues(alpha: 0.1),
                                         ],
                                       ),
                                       borderRadius: BorderRadius.circular(20),
                                       border: Border.all(
-                                        color: AppColors.primaryRed.withOpacity(0.3),
+                                        color: AppColors.primaryRed.withValues(alpha: 0.3),
                                       ),
                                     ),
                                     child: Row(
@@ -531,15 +520,6 @@ class _SignUpScreenState extends State<SignUpScreen> with TickerProviderStateMix
                         const SizedBox(height: AppSpacing.lg),
 
                         _buildInputField(
-                          label: 'Phone Number',
-                          hint: 'Enter your phone number',
-                          controller: _phoneController,
-                          prefixIcon: Icons.phone_outlined,
-                          keyboardType: TextInputType.phone,
-                        ),
-                        const SizedBox(height: AppSpacing.lg),
-
-                        _buildInputField(
                           label: 'Location',
                           hint: 'Select your location',
                           controller: _locationController,
@@ -557,7 +537,7 @@ class _SignUpScreenState extends State<SignUpScreen> with TickerProviderStateMix
                               color: AppColors.selectedBackground,
                               borderRadius: BorderRadius.circular(AppBorderRadius.small),
                               border: Border.all(
-                                color: AppColors.primaryRed.withOpacity(0.3),
+                                color: AppColors.primaryRed.withValues(alpha: 0.3),
                               ),
                             ),
                             child: Row(
@@ -580,42 +560,18 @@ class _SignUpScreenState extends State<SignUpScreen> with TickerProviderStateMix
                               ],
                             ),
                           ),
-                        const SizedBox(height: AppSpacing.xxl),
+                        const SizedBox(height: AppSpacing.lg),
 
-                        // Terms and Conditions
-                        Container(
-                          padding: const EdgeInsets.all(AppSpacing.md),
-                          decoration: BoxDecoration(
-                            color: AppColors.lightBlue.withOpacity(0.3),
-                            borderRadius: BorderRadius.circular(AppBorderRadius.medium),
-                            border: Border.all(
-                              color: AppColors.illustrationBlue.withOpacity(0.3),
-                            ),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.info_outline,
-                                size: 20,
-                                color: AppColors.illustrationDarkBlue,
-                              ),
-                              const SizedBox(width: AppSpacing.sm),
-                              Expanded(
-                                child: Text(
-                                  'By signing up, you agree to our Terms & Conditions',
-                                  style: AppTextStyles.bodySmall.copyWith(
-                                    color: AppColors.darkText,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+                        _buildInputField(
+                          label: 'Address',
+                          hint: 'Address',
+                          controller: _addressController,
                         ),
                         const SizedBox(height: AppSpacing.xl),
 
                         // Continue Button
                         CustomButton(
-                          text: 'Next',
+                          text: 'Continue to Step 2',
                           icon: Icons.arrow_forward,
                           onPressed: () {
                             // Validate
@@ -656,11 +612,20 @@ class _SignUpScreenState extends State<SignUpScreen> with TickerProviderStateMix
                               return;
                             }
 
-                            // Success - Would navigate to Step 2
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Step 1 completed! Ready for verification...'),
-                                backgroundColor: Colors.green,
+                            // Success - Navigate to Step 2
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => SignUp2Screen(
+                                  providerType: widget.providerType,
+                                  step1Data: {
+                                    'company': _companyController.text,
+                                    'jobTitle': _jobTitleController.text,
+                                    'email': _emailController.text,
+                                    'state': selectedState!,
+                                    'city': selectedCity!,
+                                  },
+                                ),
                               ),
                             );
                           },

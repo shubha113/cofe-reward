@@ -1,7 +1,10 @@
+import 'package:cofe_reward/screens/main_naviagtion_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'constants/app_constants.dart';
 import 'screens/sign_in_screen.dart';
+import 'screens/select_provider_type_screen.dart';
+import 'screens/sign_up_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -44,20 +47,20 @@ class MyApp extends StatelessWidget {
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
           fillColor: AppColors.white,
-          border: UnderlineInputBorder(
+          border: OutlineInputBorder(
             borderSide: const BorderSide(color: AppColors.borderGrey),
-            borderRadius: BorderRadius.circular(0),
+            borderRadius: BorderRadius.circular(AppBorderRadius.medium),
           ),
-          enabledBorder: UnderlineInputBorder(
+          enabledBorder: OutlineInputBorder(
             borderSide: const BorderSide(color: AppColors.borderGrey),
-            borderRadius: BorderRadius.circular(0),
+            borderRadius: BorderRadius.circular(AppBorderRadius.medium),
           ),
-          focusedBorder: UnderlineInputBorder(
+          focusedBorder: OutlineInputBorder(
             borderSide: const BorderSide(
               color: AppColors.primaryRed,
               width: 2,
             ),
-            borderRadius: BorderRadius.circular(0),
+            borderRadius: BorderRadius.circular(AppBorderRadius.medium),
           ),
           hintStyle: AppTextStyles.inputHint,
           labelStyle: AppTextStyles.inputLabel,
@@ -72,7 +75,7 @@ class MyApp extends StatelessWidget {
               vertical: AppSpacing.md,
             ),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppBorderRadius.button),
+              borderRadius: BorderRadius.circular(AppBorderRadius.medium),
             ),
             textStyle: AppTextStyles.buttonText,
           ),
@@ -84,7 +87,24 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const SignInScreen(),
+      // Define named routes
+      routes: {
+        '/signin': (context) => const SignInScreen(),
+        '/select-provider': (context) => const SelectProviderTypeScreen(),
+        '/': (context) => const MainNavigationScreen(),
+      },
+      // Handle routes with arguments
+      onGenerateRoute: (settings) {
+        if (settings.name == '/sign-up') {
+          final args = settings.arguments as Map<String, dynamic>?;
+          return MaterialPageRoute(
+            builder: (context) => SignUpScreen(
+              providerType: args?['providerType'] ?? 'installer',
+            ),
+          );
+        }
+        return null;
+      },
     );
   }
 }

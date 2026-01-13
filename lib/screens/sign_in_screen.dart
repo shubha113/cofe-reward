@@ -136,13 +136,10 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
                                     color: Colors.white.withValues(alpha: 0.2),
                                     shape: BoxShape.circle,
                                   ),
-                                  child: ClipOval(
-                                    child: Image.asset(
-                                      'assets/images/cofee.png',
-                                      width: 40,
-                                      height: 40,
-                                      fit: BoxFit.contain,
-                                    ),
+                                  child: const Icon(
+                                    Icons.coffee,
+                                    size: 40,
+                                    color: AppColors.white,
                                   ),
                                 ),
                                 const SizedBox(height: AppSpacing.md),
@@ -287,7 +284,8 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
                     CustomButton(
                       text: 'Sign In',
                       onPressed: () {
-                        // Handle sign in
+                        // Navigate to home using named route
+                        Navigator.pushReplacementNamed(context, '/home');
                       },
                       icon: Icons.arrow_forward,
                     ),
