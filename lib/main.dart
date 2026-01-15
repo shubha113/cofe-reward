@@ -89,7 +89,7 @@ class MyApp extends StatelessWidget {
       ),
       // Define named routes
       routes: {
-        '/signin': (context) => const SignInScreen(),
+        '/sign-in': (context) => const SignInScreen(),
         '/select-provider': (context) => const SelectProviderTypeScreen(),
         '/': (context) => const MainNavigationScreen(),
       },

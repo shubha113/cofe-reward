@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../constants/app_constants.dart';
 import '../widgets/custom_button.dart';
 import 'select_provider_type_screen.dart';
+import '../services/auth_service.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({Key? key}) : super(key: key);
@@ -13,7 +14,9 @@ class SignInScreen extends StatefulWidget {
 class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderStateMixin {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final AuthService _authService = AuthService();
   bool _obscurePassword = true;
+  bool _isLoading = false;
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
 
@@ -38,6 +41,69 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
     super.dispose();
   }
 
+  Future<void> _handleLogin() async {
+    // Validate inputs
+    if (_emailController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter your email'),
+          backgroundColor: AppColors.primaryRed,
+        ),
+      );
+      return;
+    }
+
+    if (_passwordController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter your password'),
+          backgroundColor: AppColors.primaryRed,
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final response = await _authService.login(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
+
+      if (!mounted) return;
+
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(response['message'] ?? 'Login successful!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      // Navigate to home
+      Navigator.pushReplacementNamed(context, '/');
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString()),
+          backgroundColor: AppColors.primaryRed,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,7 +114,7 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
             end: Alignment.bottomRight,
             colors: [
               AppColors.white,
-              AppColors.lightBlue.withValues(alpha: 0.3),
+              AppColors.lightBlue.withOpacity(0.3),
             ],
           ),
         ),
@@ -91,7 +157,7 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
                         borderRadius: BorderRadius.circular(AppBorderRadius.xlarge),
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.primaryRed.withValues(alpha: 0.3),
+                            color: AppColors.primaryRed.withOpacity(0.3),
                             blurRadius: 20,
                             offset: const Offset(0, 10),
                           ),
@@ -108,7 +174,7 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
                               height: 120,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: Colors.white.withValues(alpha: 0.1),
+                                color: Colors.white.withOpacity(0.1),
                               ),
                             ),
                           ),
@@ -120,7 +186,7 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
                               height: 80,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: Colors.white.withValues(alpha: 0.1),
+                                color: Colors.white.withOpacity(0.1),
                               ),
                             ),
                           ),
@@ -133,7 +199,7 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
                                   width: 80,
                                   height: 80,
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withValues(alpha: 0.2),
+                                    color: Colors.white.withOpacity(0.2),
                                     shape: BoxShape.circle,
                                   ),
                                   child: const Icon(
@@ -173,7 +239,7 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
                         borderRadius: BorderRadius.circular(AppBorderRadius.medium),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
+                            color: Colors.black.withOpacity(0.05),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
@@ -219,7 +285,7 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
                         borderRadius: BorderRadius.circular(AppBorderRadius.medium),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
+                            color: Colors.black.withOpacity(0.05),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
@@ -282,11 +348,9 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
 
                     // Sign In Button
                     CustomButton(
-                      text: 'Sign In',
-                      onPressed: () {
-                        // Navigate to home using named route
-                        Navigator.pushReplacementNamed(context, '/home');
-                      },
+                      text: _isLoading ? 'Signing in...' : 'Sign In',
+                      onPressed: _handleLogin,
+                      isEnabled: !_isLoading,
                       icon: Icons.arrow_forward,
                     ),
                     const SizedBox(height: AppSpacing.lg),

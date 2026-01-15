@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../constants/app_constants.dart';
 import '../widgets/custom_button.dart';
+import '../services/auth_service.dart';
 
 class SignUp2Screen extends StatefulWidget {
   final String providerType;
@@ -28,11 +29,17 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
   final TextEditingController _purchaseLocationController = TextEditingController();
   final TextEditingController _referrerController = TextEditingController();
 
+  final AuthService _authService = AuthService();
+
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   bool _isPhoneVerified = false;
   bool _hasPurchased = false;
   bool _agreedToTerms = false;
+  bool _isLoading = false;
+  bool _isVerifying = false;
+  String? _registeredPhone;
+
   late AnimationController _animationController;
   late AnimationController _progressController;
   late Animation<double> _progressAnimation;
@@ -85,6 +92,190 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
     super.dispose();
   }
 
+  // Register user and send OTP
+  Future<void> _handleRegister() async {
+    // Validation
+    if (_nameController.text.trim().isEmpty) {
+      _showError('Please enter your name');
+      return;
+    }
+    if (_phoneController.text.length != 10) {
+      _showError('Please enter valid 10-digit phone number');
+      return;
+    }
+    if (_passwordController.text.length < 6) {
+      _showError('Password must be at least 6 characters');
+      return;
+    }
+    if (_passwordController.text != _confirmPasswordController.text) {
+      _showError('Passwords do not match');
+      return;
+    }
+    if (_salesRepController.text.trim().isEmpty) {
+      _showError('Please enter sales representative name');
+      return;
+    }
+
+    setState(() => _isVerifying = true);
+
+    try {
+      final response = await _authService.register(
+        name: _nameController.text.trim(),
+        email: widget.step1Data['email']!,
+        phone: '+91${_phoneController.text}',
+        password: _passwordController.text,
+        companyName: widget.step1Data['company']!,
+        jobTitle: widget.step1Data['jobTitle']!,
+        locationState: widget.step1Data['state']!,
+        locationCity: widget.step1Data['city']!,
+        providerType: widget.providerType,
+        salesRepresentative: _salesRepController.text.trim(),
+        purchaseLocation: _purchaseLocationController.text.trim().isNotEmpty
+            ? _purchaseLocationController.text.trim()
+            : null,
+        referrer: _referrerController.text.trim().isNotEmpty
+            ? _referrerController.text.trim()
+            : null,
+        hasPurchased: _hasPurchased,
+      );
+
+      if (!mounted) return;
+
+      setState(() {
+        _isPhoneVerified = true;
+        _registeredPhone = '+91${_phoneController.text}';
+      });
+
+      // Auto-fill OTP for development
+      _otpController.text = '123456';
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('✅ Registration successful! OTP auto-filled (123456)'),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 5),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      _showError(e.toString());
+    } finally {
+      if (mounted) {
+        setState(() => _isVerifying = false);
+      }
+    }
+  }
+
+  // Resend OTP
+  Future<void> _handleResendOtp() async {
+    if (_registeredPhone == null) {
+      _showError('Please verify phone first');
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final response = await _authService.resendOtp(phone: _registeredPhone!);
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(response['message'] ?? 'OTP resent successfully!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      // Show OTP in development
+      if (response['otp'] != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Development OTP: ${response['otp']}'),
+            backgroundColor: Colors.blue,
+            duration: const Duration(seconds: 10),
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      _showError(e.toString());
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  // Complete signup with OTP verification
+  Future<void> _handleSignUp() async {
+    // Validation
+    if (!_isPhoneVerified || _registeredPhone == null) {
+      _showError('Please verify your phone first by clicking "Verify Phone" button');
+      return;
+    }
+    if (_otpController.text.length != 6) {
+      _showError('Please enter valid 6-digit OTP');
+      return;
+    }
+    if (_otpController.text != '123456') {
+      _showError('Invalid OTP. Please enter 123456');
+      return;
+    }
+    if (!_agreedToTerms) {
+      _showError('Please agree to terms and conditions');
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final response = await _authService.verifyOtp(
+        phone: _registeredPhone!,
+        otp: _otpController.text.trim(),
+      );
+
+      if (!mounted) return;
+
+      // Success
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(response['message'] ?? 'Account created successfully! 🎉'),
+          backgroundColor: Colors.green,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+
+      // Navigate to home
+      Future.delayed(const Duration(seconds: 1), () {
+        if (mounted) {
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            '/sign-in',
+                (route) => false,
+          );
+        }
+      });
+    } catch (e) {
+      if (!mounted) return;
+      _showError(e.toString());
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppColors.primaryRed,
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+
   Widget _buildInputField({
     required String label,
     required String hint,
@@ -129,7 +320,7 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
             borderRadius: BorderRadius.circular(AppBorderRadius.medium),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
+                color: Colors.black.withOpacity(0.05),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -201,7 +392,7 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
                   borderRadius: BorderRadius.circular(AppBorderRadius.medium),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
+                      color: Colors.black.withOpacity(0.05),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -259,28 +450,9 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
             ),
             const SizedBox(width: AppSpacing.sm),
             ElevatedButton(
-              onPressed: _isPhoneVerified
+              onPressed: _isPhoneVerified || _isVerifying
                   ? null
-                  : () {
-                if (_phoneController.text.length == 10) {
-                  setState(() {
-                    _isPhoneVerified = true;
-                  });
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('OTP sent to your phone!'),
-                      backgroundColor: Colors.green,
-                    ),
-                  );
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Please enter valid phone number'),
-                      backgroundColor: AppColors.primaryRed,
-                    ),
-                  );
-                }
-              },
+                  : _handleRegister,
               style: ElevatedButton.styleFrom(
                 backgroundColor: _isPhoneVerified
                     ? Colors.green
@@ -296,7 +468,9 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
                 elevation: 0,
               ),
               child: Text(
-                _isPhoneVerified ? 'Verified' : 'Verify',
+                _isPhoneVerified
+                    ? '✓ Verified'
+                    : (_isVerifying ? 'Verifying...' : 'Verify Phone'),
                 style: const TextStyle(
                   fontWeight: FontWeight.w600,
                   fontSize: 14,
@@ -319,7 +493,7 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
             end: Alignment.bottomCenter,
             colors: [
               AppColors.white,
-              AppColors.lightBlue.withValues(alpha: 0.2),
+              AppColors.lightBlue.withOpacity(0.2),
             ],
           ),
         ),
@@ -332,7 +506,7 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
                   color: AppColors.white,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.08),
+                      color: Colors.black.withOpacity(0.08),
                       blurRadius: 20,
                       offset: const Offset(0, 4),
                     ),
@@ -389,7 +563,7 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
                                       shape: BoxShape.circle,
                                       boxShadow: [
                                         BoxShadow(
-                                          color: Colors.green.withValues(alpha: 0.3),
+                                          color: Colors.green.withOpacity(0.3),
                                           blurRadius: 12,
                                           offset: const Offset(0, 4),
                                         ),
@@ -427,7 +601,7 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
                                             borderRadius: BorderRadius.circular(2),
                                             boxShadow: [
                                               BoxShadow(
-                                                color: AppColors.primaryRed.withValues(alpha: 0.3),
+                                                color: AppColors.primaryRed.withOpacity(0.3),
                                                 blurRadius: 8,
                                                 offset: const Offset(0, 2),
                                               ),
@@ -459,7 +633,7 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
                                             shape: BoxShape.circle,
                                             boxShadow: [
                                               BoxShadow(
-                                                color: AppColors.primaryRed.withValues(alpha: 0.4),
+                                                color: AppColors.primaryRed.withOpacity(0.4),
                                                 blurRadius: 12,
                                                 offset: const Offset(0, 4),
                                               ),
@@ -595,16 +769,11 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
                             Align(
                               alignment: Alignment.centerRight,
                               child: TextButton(
-                                onPressed: () {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('OTP resent successfully!'),
-                                      backgroundColor: Colors.green,
-                                    ),
-                                  );
-                                },
+                                onPressed: _isLoading ? null : _handleResendOtp,
                                 child: Text(
-                                  'Didn\'t receive verification code?',
+                                  _isLoading
+                                      ? 'Resending...'
+                                      : 'Didn\'t receive verification code?',
                                   style: AppTextStyles.bodySmall.copyWith(
                                     color: AppColors.illustrationDarkBlue,
                                     fontWeight: FontWeight.w600,
@@ -679,7 +848,7 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
                             vertical: AppSpacing.sm,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.lightBlue.withValues(alpha: 0.2),
+                            color: AppColors.lightBlue.withOpacity(0.2),
                             borderRadius: BorderRadius.circular(AppBorderRadius.small),
                           ),
                           child: Row(
@@ -769,7 +938,7 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
                                         ),
                                         boxShadow: [
                                           BoxShadow(
-                                            color: Colors.black.withValues(alpha: 0.05),
+                                            color: Colors.black.withOpacity(0.05),
                                             blurRadius: 8,
                                             offset: const Offset(0, 2),
                                           ),
@@ -843,7 +1012,7 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
                                         ),
                                         boxShadow: [
                                           BoxShadow(
-                                            color: Colors.black.withValues(alpha: 0.05),
+                                            color: Colors.black.withOpacity(0.05),
                                             blurRadius: 8,
                                             offset: const Offset(0, 2),
                                           ),
@@ -963,103 +1132,10 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
 
                         // Sign Up Button
                         CustomButton(
-                          text: 'Sign Up',
+                          text: _isLoading ? 'Creating Account...' : 'Sign Up',
                           icon: Icons.check_circle,
-                          onPressed: () {
-                            // Validation
-                            if (_nameController.text.isEmpty) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Please enter your name'),
-                                  backgroundColor: AppColors.primaryRed,
-                                ),
-                              );
-                              return;
-                            }
-                            if (_phoneController.text.length != 10) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Please enter valid phone number'),
-                                  backgroundColor: AppColors.primaryRed,
-                                ),
-                              );
-                              return;
-                            }
-                            if (!_isPhoneVerified) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Please verify your phone number'),
-                                  backgroundColor: AppColors.primaryRed,
-                                ),
-                              );
-                              return;
-                            }
-                            if (_otpController.text.length != 6) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Please enter valid OTP'),
-                                  backgroundColor: AppColors.primaryRed,
-                                ),
-                              );
-                              return;
-                            }
-                            if (_passwordController.text.isEmpty) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Please enter password'),
-                                  backgroundColor: AppColors.primaryRed,
-                                ),
-                              );
-                              return;
-                            }
-                            if (_passwordController.text !=
-                                _confirmPasswordController.text) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Passwords do not match'),
-                                  backgroundColor: AppColors.primaryRed,
-                                ),
-                              );
-                              return;
-                            }
-                            if (_salesRepController.text.isEmpty) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content:
-                                  Text('Please enter sales representative name'),
-                                  backgroundColor: AppColors.primaryRed,
-                                ),
-                              );
-                              return;
-                            }
-                            if (!_agreedToTerms) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Please agree to terms and conditions'),
-                                  backgroundColor: AppColors.primaryRed,
-                                ),
-                              );
-                              return;
-                            }
-
-                            // Success
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Account created successfully! 🎉'),
-                                backgroundColor: Colors.green,
-                                duration: Duration(seconds: 2),
-                              ),
-                            );
-
-                            // Navigate to home screen using named route
-                            Future.delayed(const Duration(seconds: 2), () {
-                              Navigator.pushNamedAndRemoveUntil(
-                                context,
-                                '/signin',
-                                    (route) => false,
-                              );
-                            });
-                          },
+                          onPressed: _handleSignUp,
+                          isEnabled: !_isLoading,
                         ),
                         const SizedBox(height: AppSpacing.lg),
                       ],
