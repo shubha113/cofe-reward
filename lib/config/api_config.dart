@@ -1,22 +1,46 @@
 class ApiConfig {
-  //Base URL
-  static const String baseUrl = 'http://192.168.0.113:5000/api';
+  /// BASE URL
+  // The base domain
+  static const String domain = 'http://192.168.0.102:8000';
 
-  //Auth endpoints
+  // API path
+  static const String baseUrl = '$domain/api/v1';
+
+  // Image/Storage path
+  static const String storageUrl = '$domain/storage/';
+
+  /// AUTH ENDPOINTS
+  static const String sendOtp = '/auth/send-otp';
+  static const String verifyOtp = '/auth/verify-phone';
+  static const String resendOtp = '/auth/resend-otp';
   static const String register = '/auth/register';
   static const String login = '/auth/login';
-  static const String verifyOtp = '/auth/verify-otp';
-  static const String resendOtp = '/auth/resend-otp';
-  static const String me = '/auth/me';
+  static const String logout = '/auth/logout';
+  static const String profile = '/profile';
 
-  //Profile endpoints
-  static const String profile = '/user';
-  static const String favorites = '/user/favorites';
+  /// DEVICE CLAIM ENDPOINT
+  static const String claimDevice = '/device/claim';
 
-  // Timeout durations
-  static const Duration connectionTimeout = Duration(seconds: 30);
-  static const Duration receiveTimeout = Duration(seconds: 30);
+  /// CATEGORY ENDPOINTS (NEW - ID based)
+  static const String categories = '/categories';
+  static String categorySubcategories(int mainCategoryId) =>
+      '/categories/$mainCategoryId/subcategories';
 
-  // Static OTP for development
+  /// PRODUCT ENDPOINTS
+  static const String products = '/products';
+  static const String productSearch = '/products/search';
+  static String productById(int id) => '/products/$id';
+  static String productsByMainCategoryId(int mainCategoryId) =>
+      '/products/main-category/$mainCategoryId';
+  static String productsByCategoryId(int categoryId) =>
+      '/products/category/$categoryId';
+  static String productsBySubcategoryId(int subcategoryId) =>
+      '/products/subcategory/$subcategoryId';
+
+  /// TIMEOUTS
+  static const Duration connectionTimeout = Duration(seconds: 15);
+  static const Duration receiveTimeout = Duration(seconds: 15);
+
+  /// DEV HELPERS
   static const String staticOTP = '123456';
 }

@@ -6,7 +6,56 @@ class AuthService {
   final ApiClient _apiClient = ApiClient();
   final StorageService _storage = StorageService();
 
-  // Register user
+  // Send OTP (initial phone verification)
+  Future<Map<String, dynamic>> sendOtp({required String phone}) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConfig.sendOtp,
+        body: {'phone': phone},
+      );
+
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  // Verify OTP - FIXED: Use 'verification_code' instead of 'otp'
+  Future<Map<String, dynamic>> verifyOtp({
+    required String phone,
+    required String otp,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConfig.verifyOtp,
+        body: {
+          'phone': phone,
+          'verification_code': otp,
+        },
+      );
+
+      // Note: verifyPhone doesn't return token, only success message
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  // Resend OTP
+  Future<Map<String, dynamic>> resendOtp({required String phone}) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConfig.resendOtp,
+        body: {'phone': phone},
+      );
+
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  // Register user - FIXED: Match backend field names exactly
   Future<Map<String, dynamic>> register({
     required String name,
     required String email,
@@ -20,78 +69,41 @@ class AuthService {
     required String salesRepresentative,
     String? purchaseLocation,
     String? referrer,
+    String? address,
     bool hasPurchased = false,
   }) async {
     try {
       final response = await _apiClient.post(
         ApiConfig.register,
         body: {
+          'phone': phone,
           'name': name,
           'email': email,
-          'phone': phone,
           'password': password,
+          'password_confirmation': password,
           'company_name': companyName,
+          'company_type': providerType,
           'job_title': jobTitle,
           'location_state': locationState,
           'location_city': locationCity,
-          'provider_type': providerType,
           'sales_representative': salesRepresentative,
-          if (purchaseLocation != null) 'purchase_location': purchaseLocation,
-          if (referrer != null) 'referrer': referrer,
           'has_purchased': hasPurchased,
-        },
-      );
-
-      // Save user data temporarily (before verification)
-      if (response['user'] != null) {
-        await _storage.saveUser(response['user']);
-      }
-
-      return response;
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  // Verify OTP
-  Future<Map<String, dynamic>> verifyOtp({
-    required String phone,
-    required String otp,
-  }) async {
-    try {
-      final response = await _apiClient.post(
-        ApiConfig.verifyOtp,
-        body: {
-          'phone': phone,
-          'otp': otp,
+          if (purchaseLocation != null && purchaseLocation.isNotEmpty)
+            'purchase_location': purchaseLocation,
+          if (referrer != null && referrer.isNotEmpty) 'referrer': referrer,
+          if (address != null && address.isNotEmpty) 'address': address,
         },
       );
 
       // Save token and user data
-      if (response['token'] != null) {
-        await _storage.saveToken(response['token']);
+      if (response['data'] != null) {
+        if (response['data']['token'] != null) {
+          await _storage.saveToken(response['data']['token']);
+        }
+        if (response['data']['user'] != null) {
+          await _storage.saveUser(response['data']['user']);
+        }
       }
-      if (response['user'] != null) {
-        await _storage.saveUser(response['user']);
-      }
-
-      return response;
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  // Resend OTP
-  Future<Map<String, dynamic>> resendOtp({
-    required String phone,
-  }) async {
-    try {
-      final response = await _apiClient.post(
-        ApiConfig.resendOtp,
-        body: {
-          'phone': phone,
-        },
-      );
 
       return response;
     } catch (e) {
@@ -107,18 +119,17 @@ class AuthService {
     try {
       final response = await _apiClient.post(
         ApiConfig.login,
-        body: {
-          'email': email,
-          'password': password,
-        },
+        body: {'email': email, 'password': password},
       );
 
       // Save token and user data
-      if (response['token'] != null) {
-        await _storage.saveToken(response['token']);
-      }
-      if (response['user'] != null) {
-        await _storage.saveUser(response['user']);
+      if (response['data'] != null) {
+        if (response['data']['token'] != null) {
+          await _storage.saveToken(response['data']['token']);
+        }
+        if (response['data']['user'] != null) {
+          await _storage.saveUser(response['data']['user']);
+        }
       }
 
       return response;
@@ -130,11 +141,11 @@ class AuthService {
   // Get current user
   Future<Map<String, dynamic>> getCurrentUser() async {
     try {
-      final response = await _apiClient.get(ApiConfig.me);
+      final response = await _apiClient.get(ApiConfig.profile);
 
       // Update stored user data
-      if (response['user'] != null) {
-        await _storage.saveUser(response['user']);
+      if (response['data'] != null && response['data']['user'] != null) {
+        await _storage.saveUser(response['data']['user']);
       }
 
       return response;
@@ -145,13 +156,25 @@ class AuthService {
 
   // Logout
   Future<void> logout() async {
-    // Just clear local storage
-    await _storage.clear();
+    try {
+      // Call backend logout endpoint
+      await _apiClient.post(ApiConfig.logout, body: {});
+    } catch (e) {
+      // Continue even if backend call fails
+    } finally {
+      // Always clear local storage
+      await _storage.clear();
+    }
   }
 
   // Check if user is logged in
   Future<bool> isLoggedIn() async {
     return await _storage.isLoggedIn();
+  }
+
+  // Get stored token
+  Future<String?> getToken() async {
+    return await _storage.getToken();
   }
 
   // Get stored user

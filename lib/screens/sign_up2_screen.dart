@@ -24,9 +24,11 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _otpController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   final TextEditingController _salesRepController = TextEditingController();
-  final TextEditingController _purchaseLocationController = TextEditingController();
+  final TextEditingController _purchaseLocationController =
+      TextEditingController();
   final TextEditingController _referrerController = TextEditingController();
 
   final AuthService _authService = AuthService();
@@ -37,7 +39,11 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
   bool _hasPurchased = false;
   bool _agreedToTerms = false;
   bool _isLoading = false;
+  bool _isVerifyingOtp = false;
+  bool _isResendingOtp = false;
+  bool _isRegistering = false;
   bool _isVerifying = false;
+  bool _otpSent = false;
   String? _registeredPhone;
 
   late AnimationController _animationController;
@@ -67,10 +73,7 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
     );
 
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeIn,
-      ),
+      CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
     );
 
     _animationController.forward();
@@ -92,77 +95,70 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
     super.dispose();
   }
 
-  // Register user and send OTP
-  Future<void> _handleRegister() async {
-    // Validation
-    if (_nameController.text.trim().isEmpty) {
-      _showError('Please enter your name');
-      return;
-    }
+  Future<void> _handleSendOtp() async {
     if (_phoneController.text.length != 10) {
       _showError('Please enter valid 10-digit phone number');
-      return;
-    }
-    if (_passwordController.text.length < 6) {
-      _showError('Password must be at least 6 characters');
-      return;
-    }
-    if (_passwordController.text != _confirmPasswordController.text) {
-      _showError('Passwords do not match');
-      return;
-    }
-    if (_salesRepController.text.trim().isEmpty) {
-      _showError('Please enter sales representative name');
       return;
     }
 
     setState(() => _isVerifying = true);
 
     try {
-      final response = await _authService.register(
-        name: _nameController.text.trim(),
-        email: widget.step1Data['email']!,
-        phone: '+91${_phoneController.text}',
-        password: _passwordController.text,
-        companyName: widget.step1Data['company']!,
-        jobTitle: widget.step1Data['jobTitle']!,
-        locationState: widget.step1Data['state']!,
-        locationCity: widget.step1Data['city']!,
-        providerType: widget.providerType,
-        salesRepresentative: _salesRepController.text.trim(),
-        purchaseLocation: _purchaseLocationController.text.trim().isNotEmpty
-            ? _purchaseLocationController.text.trim()
-            : null,
-        referrer: _referrerController.text.trim().isNotEmpty
-            ? _referrerController.text.trim()
-            : null,
-        hasPurchased: _hasPurchased,
-      );
+      await _authService.sendOtp(phone: _phoneController.text.trim());
 
       if (!mounted) return;
 
       setState(() {
-        _isPhoneVerified = true;
-        _registeredPhone = '+91${_phoneController.text}';
+        _registeredPhone = _phoneController.text.trim();
+        _otpSent = true;
       });
-
-      // Auto-fill OTP for development
-      _otpController.text = '123456';
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('✅ Registration successful! OTP auto-filled (123456)'),
+          content: Text('OTP sent successfully'),
           backgroundColor: Colors.green,
-          duration: Duration(seconds: 5),
         ),
       );
     } catch (e) {
-      if (!mounted) return;
       _showError(e.toString());
     } finally {
-      if (mounted) {
-        setState(() => _isVerifying = false);
-      }
+      setState(() => _isVerifying = false);
+    }
+  }
+
+  Future<void> _handleVerifyOtp() async {
+    if (_registeredPhone == null) {
+      _showError('Send OTP first');
+      return;
+    }
+
+    if (_otpController.text.length != 6) {
+      _showError('Enter valid OTP');
+      return;
+    }
+
+    setState(() => _isVerifyingOtp = true);
+
+    try {
+      await _authService.verifyOtp(
+        phone: _registeredPhone!.replaceAll(RegExp(r'[^0-9]'), ''),
+        otp: _otpController.text.trim(),
+      );
+
+      setState(() {
+        _isPhoneVerified = true;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Phone verified successfully'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      _showError(e.toString());
+    } finally {
+      setState(() => _isVerifyingOtp = false);
     }
   }
 
@@ -209,60 +205,44 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
 
   // Complete signup with OTP verification
   Future<void> _handleSignUp() async {
-    // Validation
-    if (!_isPhoneVerified || _registeredPhone == null) {
-      _showError('Please verify your phone first by clicking "Verify Phone" button');
-      return;
-    }
     if (_otpController.text.length != 6) {
-      _showError('Please enter valid 6-digit OTP');
+      _showError('Please enter valid OTP');
       return;
     }
-    if (_otpController.text != '123456') {
-      _showError('Invalid OTP. Please enter 123456');
-      return;
-    }
+
     if (!_agreedToTerms) {
-      _showError('Please agree to terms and conditions');
+      _showError('Please agree to terms');
       return;
     }
 
     setState(() => _isLoading = true);
 
     try {
-      final response = await _authService.verifyOtp(
+      await _authService.register(
+        name: _nameController.text.trim(),
+        email: widget.step1Data['email']!,
         phone: _registeredPhone!,
-        otp: _otpController.text.trim(),
+        password: _passwordController.text,
+        companyName: widget.step1Data['company']!,
+        jobTitle: widget.step1Data['jobTitle']!,
+        locationState: widget.step1Data['state']!,
+        locationCity: widget.step1Data['city']!,
+        providerType: widget.providerType,
+        salesRepresentative: _salesRepController.text.trim(),
+        purchaseLocation: _purchaseLocationController.text.trim().isNotEmpty
+            ? _purchaseLocationController.text.trim()
+            : null,
+        referrer: _referrerController.text.trim().isNotEmpty
+            ? _referrerController.text.trim()
+            : null,
+        hasPurchased: _hasPurchased,
       );
 
-      if (!mounted) return;
-
-      // Success
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(response['message'] ?? 'Account created successfully! 🎉'),
-          backgroundColor: Colors.green,
-          duration: const Duration(seconds: 2),
-        ),
-      );
-
-      // Navigate to home
-      Future.delayed(const Duration(seconds: 1), () {
-        if (mounted) {
-          Navigator.pushNamedAndRemoveUntil(
-            context,
-            '/sign-in',
-                (route) => false,
-          );
-        }
-      });
+      Navigator.pushNamedAndRemoveUntil(context, '/sign-in', (route) => false);
     } catch (e) {
-      if (!mounted) return;
       _showError(e.toString());
     } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+      setState(() => _isLoading = false);
     }
   }
 
@@ -434,7 +414,9 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
                       ),
                     ),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(AppBorderRadius.medium),
+                      borderRadius: BorderRadius.circular(
+                        AppBorderRadius.medium,
+                      ),
                       borderSide: BorderSide.none,
                     ),
                     filled: true,
@@ -450,31 +432,18 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
             ),
             const SizedBox(width: AppSpacing.sm),
             ElevatedButton(
-              onPressed: _isPhoneVerified || _isVerifying
+              onPressed: _isPhoneVerified
                   ? null
-                  : _handleRegister,
+                  : (_otpSent ? _handleVerifyOtp : _handleSendOtp),
               style: ElevatedButton.styleFrom(
                 backgroundColor: _isPhoneVerified
                     ? Colors.green
                     : AppColors.primaryRed,
-                foregroundColor: AppColors.white,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.lg,
-                  vertical: 16,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppBorderRadius.medium),
-                ),
-                elevation: 0,
               ),
               child: Text(
                 _isPhoneVerified
-                    ? '✓ Verified'
-                    : (_isVerifying ? 'Verifying...' : 'Verify Phone'),
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
-                ),
+                    ? 'Verified'
+                    : (_otpSent ? 'Verify Phone' : 'Send OTP'),
               ),
             ),
           ],
@@ -491,10 +460,7 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              AppColors.white,
-              AppColors.lightBlue.withOpacity(0.2),
-            ],
+            colors: [AppColors.white, AppColors.lightBlue.withOpacity(0.2)],
           ),
         ),
         child: SafeArea(
@@ -582,7 +548,9 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
                                   Expanded(
                                     child: Container(
                                       height: 4,
-                                      margin: const EdgeInsets.symmetric(horizontal: 8),
+                                      margin: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                      ),
                                       decoration: BoxDecoration(
                                         color: AppColors.greyBackground,
                                         borderRadius: BorderRadius.circular(2),
@@ -598,10 +566,13 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
                                                 AppColors.primaryRed,
                                               ],
                                             ),
-                                            borderRadius: BorderRadius.circular(2),
+                                            borderRadius: BorderRadius.circular(
+                                              2,
+                                            ),
                                             boxShadow: [
                                               BoxShadow(
-                                                color: AppColors.primaryRed.withOpacity(0.3),
+                                                color: AppColors.primaryRed
+                                                    .withOpacity(0.3),
                                                 blurRadius: 8,
                                                 offset: const Offset(0, 2),
                                               ),
@@ -633,7 +604,8 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
                                             shape: BoxShape.circle,
                                             boxShadow: [
                                               BoxShadow(
-                                                color: AppColors.primaryRed.withOpacity(0.4),
+                                                color: AppColors.primaryRed
+                                                    .withOpacity(0.4),
                                                 blurRadius: 12,
                                                 offset: const Offset(0, 4),
                                               ),
@@ -660,46 +632,51 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
 
                               // Step Labels
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           'Basic Info',
-                                          style: AppTextStyles.bodyMedium.copyWith(
-                                            color: Colors.green,
-                                            fontWeight: FontWeight.bold,
-                                          ),
+                                          style: AppTextStyles.bodyMedium
+                                              .copyWith(
+                                                color: Colors.green,
+                                                fontWeight: FontWeight.bold,
+                                              ),
                                         ),
                                         const SizedBox(height: 2),
                                         Text(
                                           'Completed ✓',
-                                          style: AppTextStyles.bodySmall.copyWith(
-                                            color: Colors.green,
-                                          ),
+                                          style: AppTextStyles.bodySmall
+                                              .copyWith(color: Colors.green),
                                         ),
                                       ],
                                     ),
                                   ),
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
                                       children: [
                                         Text(
                                           'Verification',
-                                          style: AppTextStyles.bodyMedium.copyWith(
-                                            color: AppColors.primaryRed,
-                                            fontWeight: FontWeight.bold,
-                                          ),
+                                          style: AppTextStyles.bodyMedium
+                                              .copyWith(
+                                                color: AppColors.primaryRed,
+                                                fontWeight: FontWeight.bold,
+                                              ),
                                         ),
                                         const SizedBox(height: 2),
                                         Text(
                                           'Step 2 of 2',
-                                          style: AppTextStyles.bodySmall.copyWith(
-                                            color: AppColors.greyText,
-                                          ),
+                                          style: AppTextStyles.bodySmall
+                                              .copyWith(
+                                                color: AppColors.greyText,
+                                              ),
                                         ),
                                       ],
                                     ),
@@ -712,7 +689,9 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
                               // Title
                               Text(
                                 'Complete Your Profile',
-                                style: AppTextStyles.header1.copyWith(fontSize: 28),
+                                style: AppTextStyles.header1.copyWith(
+                                  fontSize: 28,
+                                ),
                               ),
                               const SizedBox(height: 4),
                               Text(
@@ -763,7 +742,9 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
                               prefixIcon: Icons.security,
                               keyboardType: TextInputType.number,
                               maxLength: 6,
-                              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly,
+                              ],
                             ),
                             const SizedBox(height: AppSpacing.sm),
                             Align(
@@ -825,7 +806,8 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
                             ),
                             onPressed: () {
                               setState(() {
-                                _obscureConfirmPassword = !_obscureConfirmPassword;
+                                _obscureConfirmPassword =
+                                    !_obscureConfirmPassword;
                               });
                             },
                           ),
@@ -849,7 +831,9 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
                           ),
                           decoration: BoxDecoration(
                             color: AppColors.lightBlue.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(AppBorderRadius.small),
+                            borderRadius: BorderRadius.circular(
+                              AppBorderRadius.small,
+                            ),
                           ),
                           child: Row(
                             children: [
@@ -923,13 +907,16 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
                                       });
                                     },
                                     child: Container(
-                                      padding: const EdgeInsets.all(AppSpacing.md),
+                                      padding: const EdgeInsets.all(
+                                        AppSpacing.md,
+                                      ),
                                       decoration: BoxDecoration(
                                         color: _hasPurchased
                                             ? AppColors.selectedBackground
                                             : AppColors.white,
                                         borderRadius: BorderRadius.circular(
-                                            AppBorderRadius.medium),
+                                          AppBorderRadius.medium,
+                                        ),
                                         border: Border.all(
                                           color: _hasPurchased
                                               ? AppColors.primaryRed
@@ -938,7 +925,9 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
                                         ),
                                         boxShadow: [
                                           BoxShadow(
-                                            color: Colors.black.withOpacity(0.05),
+                                            color: Colors.black.withOpacity(
+                                              0.05,
+                                            ),
                                             blurRadius: 8,
                                             offset: const Offset(0, 2),
                                           ),
@@ -963,25 +952,26 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
                                             ),
                                             child: _hasPurchased
                                                 ? const Center(
-                                              child: Icon(
-                                                Icons.circle,
-                                                size: 12,
-                                                color: AppColors.white,
-                                              ),
-                                            )
+                                                    child: Icon(
+                                                      Icons.circle,
+                                                      size: 12,
+                                                      color: AppColors.white,
+                                                    ),
+                                                  )
                                                 : null,
                                           ),
                                           const SizedBox(width: AppSpacing.sm),
                                           Text(
                                             'Yes',
-                                            style: AppTextStyles.bodyLarge.copyWith(
-                                              fontWeight: _hasPurchased
-                                                  ? FontWeight.w600
-                                                  : FontWeight.normal,
-                                              color: _hasPurchased
-                                                  ? AppColors.primaryRed
-                                                  : AppColors.darkText,
-                                            ),
+                                            style: AppTextStyles.bodyLarge
+                                                .copyWith(
+                                                  fontWeight: _hasPurchased
+                                                      ? FontWeight.w600
+                                                      : FontWeight.normal,
+                                                  color: _hasPurchased
+                                                      ? AppColors.primaryRed
+                                                      : AppColors.darkText,
+                                                ),
                                           ),
                                         ],
                                       ),
@@ -997,13 +987,16 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
                                       });
                                     },
                                     child: Container(
-                                      padding: const EdgeInsets.all(AppSpacing.md),
+                                      padding: const EdgeInsets.all(
+                                        AppSpacing.md,
+                                      ),
                                       decoration: BoxDecoration(
                                         color: !_hasPurchased
                                             ? AppColors.selectedBackground
                                             : AppColors.white,
                                         borderRadius: BorderRadius.circular(
-                                            AppBorderRadius.medium),
+                                          AppBorderRadius.medium,
+                                        ),
                                         border: Border.all(
                                           color: !_hasPurchased
                                               ? AppColors.primaryRed
@@ -1012,7 +1005,9 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
                                         ),
                                         boxShadow: [
                                           BoxShadow(
-                                            color: Colors.black.withOpacity(0.05),
+                                            color: Colors.black.withOpacity(
+                                              0.05,
+                                            ),
                                             blurRadius: 8,
                                             offset: const Offset(0, 2),
                                           ),
@@ -1037,25 +1032,26 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
                                             ),
                                             child: !_hasPurchased
                                                 ? const Center(
-                                              child: Icon(
-                                                Icons.circle,
-                                                size: 12,
-                                                color: AppColors.white,
-                                              ),
-                                            )
+                                                    child: Icon(
+                                                      Icons.circle,
+                                                      size: 12,
+                                                      color: AppColors.white,
+                                                    ),
+                                                  )
                                                 : null,
                                           ),
                                           const SizedBox(width: AppSpacing.sm),
                                           Text(
                                             'No',
-                                            style: AppTextStyles.bodyLarge.copyWith(
-                                              fontWeight: !_hasPurchased
-                                                  ? FontWeight.w600
-                                                  : FontWeight.normal,
-                                              color: !_hasPurchased
-                                                  ? AppColors.primaryRed
-                                                  : AppColors.darkText,
-                                            ),
+                                            style: AppTextStyles.bodyLarge
+                                                .copyWith(
+                                                  fontWeight: !_hasPurchased
+                                                      ? FontWeight.w600
+                                                      : FontWeight.normal,
+                                                  color: !_hasPurchased
+                                                      ? AppColors.primaryRed
+                                                      : AppColors.darkText,
+                                                ),
                                           ),
                                         ],
                                       ),
@@ -1096,10 +1092,10 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
                                 ),
                                 child: _agreedToTerms
                                     ? const Icon(
-                                  Icons.check,
-                                  size: 16,
-                                  color: AppColors.white,
-                                )
+                                        Icons.check,
+                                        size: 16,
+                                        color: AppColors.white,
+                                      )
                                     : null,
                               ),
                               const SizedBox(width: AppSpacing.sm),
@@ -1111,10 +1107,12 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
                                       height: 1.5,
                                     ),
                                     children: [
-                                      const TextSpan(text: 'I agree to follow the '),
+                                      const TextSpan(
+                                        text: 'I agree to follow the ',
+                                      ),
                                       TextSpan(
                                         text:
-                                        '\'Partner Program Term Policy, Policy Term of Use\'',
+                                            '\'Partner Program Term Policy, Policy Term of Use\'',
                                         style: AppTextStyles.bodySmall.copyWith(
                                           color: AppColors.illustrationDarkBlue,
                                           fontWeight: FontWeight.w600,

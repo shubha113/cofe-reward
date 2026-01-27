@@ -26,14 +26,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _loadProfileData() async {
     setState(() => _isLoading = true);
+
     try {
       final profileResponse = await _profileService.getProfile();
-      final favorites = await _profileService.getFavorites();
 
       if (mounted) {
         setState(() {
-          _userData = profileResponse['user'];
-          _favorites = favorites;
+          _userData = profileResponse['data']?['user'];
           _isLoading = false;
         });
       }
@@ -46,6 +45,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
     }
   }
+
 
   //Guest view
   Widget _buildGuestView() {
@@ -93,34 +93,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       ),
     );
-  }
-
-  Future<void> _handleRemoveFavorite(int index, String productId) async {
-    try {
-      await _profileService.removeFavorite(productId: productId);
-
-      setState(() {
-        _favorites.removeAt(index);
-      });
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Removed from favorites'),
-            duration: Duration(seconds: 2),
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: ${e.toString()}'),
-            backgroundColor: AppColors.primaryRed,
-          ),
-        );
-      }
-    }
   }
 
   Future<void> _handleLogout() async {
@@ -279,7 +251,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Row( // This puts Avatar and Text side-by-side
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // 1. LEFT SIDE: The Avatar
           Container(
             width: 80,
             height: 80,
@@ -303,7 +274,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
           const SizedBox(width: 20), // Space between Avatar and Details
 
-          // 2. RIGHT SIDE: The Details (Name, Title, Badge)
           Expanded(
             child: Column( // This keeps the text elements stacked vertically
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -342,7 +312,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       const Icon(Icons.verified_user, size: 14, color: AppColors.white),
                       const SizedBox(width: 6),
                       Text(
-                        _userData?['provider_type']?.toString().toUpperCase() ?? 'USER',
+                        _userData?['company_type']?.toString().toUpperCase() ?? 'USER',
                         style: const TextStyle(
                           color: AppColors.white,
                           fontWeight: FontWeight.bold,
@@ -401,7 +371,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _buildDetailRow(
             icon: Icons.location_on_outlined,
             label: 'Location',
-            value: '${_userData?['location_state'] ?? ''}, ${_userData?['location_city'] ?? ''}',
+            value: _userData?['location'] ?? '—',
           ),
           _buildDetailRow(
             icon: Icons.calendar_today_outlined,

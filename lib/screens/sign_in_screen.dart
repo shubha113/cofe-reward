@@ -11,7 +11,8 @@ class SignInScreen extends StatefulWidget {
   State<SignInScreen> createState() => _SignInScreenState();
 }
 
-class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderStateMixin {
+class _SignInScreenState extends State<SignInScreen>
+    with SingleTickerProviderStateMixin {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final AuthService _authService = AuthService();
@@ -112,10 +113,7 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              AppColors.white,
-              AppColors.lightBlue.withOpacity(0.3),
-            ],
+            colors: [AppColors.white, AppColors.lightBlue.withOpacity(0.3)],
           ),
         ),
         child: SafeArea(
@@ -132,16 +130,12 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
                     // Welcome Header
                     Text(
                       'Welcome Back',
-                      style: AppTextStyles.header1.copyWith(
-                        fontSize: 36,
-                      ),
+                      style: AppTextStyles.header1.copyWith(fontSize: 36),
                     ),
                     const SizedBox(height: AppSpacing.sm),
                     Text(
                       'Sign in to continue your journey',
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        fontSize: 16,
-                      ),
+                      style: AppTextStyles.bodyMedium.copyWith(fontSize: 16),
                     ),
                     const SizedBox(height: AppSpacing.xxl),
 
@@ -154,7 +148,9 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
-                        borderRadius: BorderRadius.circular(AppBorderRadius.xlarge),
+                        borderRadius: BorderRadius.circular(
+                          AppBorderRadius.xlarge,
+                        ),
                         boxShadow: [
                           BoxShadow(
                             color: AppColors.primaryRed.withOpacity(0.3),
@@ -236,7 +232,9 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
                     Container(
                       decoration: BoxDecoration(
                         color: AppColors.white,
-                        borderRadius: BorderRadius.circular(AppBorderRadius.medium),
+                        borderRadius: BorderRadius.circular(
+                          AppBorderRadius.medium,
+                        ),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withOpacity(0.05),
@@ -257,7 +255,9 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
                             color: AppColors.primaryRed,
                           ),
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(AppBorderRadius.medium),
+                            borderRadius: BorderRadius.circular(
+                              AppBorderRadius.medium,
+                            ),
                             borderSide: BorderSide.none,
                           ),
                           filled: true,
@@ -282,7 +282,9 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
                     Container(
                       decoration: BoxDecoration(
                         color: AppColors.white,
-                        borderRadius: BorderRadius.circular(AppBorderRadius.medium),
+                        borderRadius: BorderRadius.circular(
+                          AppBorderRadius.medium,
+                        ),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withOpacity(0.05),
@@ -316,7 +318,9 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
                             },
                           ),
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(AppBorderRadius.medium),
+                            borderRadius: BorderRadius.circular(
+                              AppBorderRadius.medium,
+                            ),
                             borderSide: BorderSide.none,
                           ),
                           filled: true,
@@ -365,7 +369,9 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.md,
+                          ),
                           child: Text(
                             'OR',
                             style: AppTextStyles.bodySmall.copyWith(
@@ -388,7 +394,9 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
                       padding: const EdgeInsets.all(AppSpacing.lg),
                       decoration: BoxDecoration(
                         color: AppColors.white,
-                        borderRadius: BorderRadius.circular(AppBorderRadius.medium),
+                        borderRadius: BorderRadius.circular(
+                          AppBorderRadius.medium,
+                        ),
                         border: Border.all(
                           color: AppColors.borderGrey,
                           width: 1,
@@ -420,7 +428,8 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => const SelectProviderTypeScreen(),
+                                  builder: (context) =>
+                                      const SelectProviderTypeScreen(),
                                 ),
                               );
                             },
@@ -433,7 +442,9 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
                                 vertical: AppSpacing.md,
                               ),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(AppBorderRadius.small),
+                                borderRadius: BorderRadius.circular(
+                                  AppBorderRadius.small,
+                                ),
                               ),
                             ),
                             child: const Text('Sign Up'),
