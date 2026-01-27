@@ -1,3 +1,4 @@
+import 'package:cofe_reward/config/api_config.dart';
 import 'package:image_picker/image_picker.dart' as img;
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:flutter/material.dart';
@@ -241,7 +242,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                   ),
                   child: Center(
                     child: Image.network(
-                      'http://10.0.2.2:8000/storage/$imageUrl',
+                      '${ApiConfig.storageUrl}$imageUrl',
                       fit: BoxFit.contain,
                       errorBuilder: (context, error, stackTrace) {
                         return const Icon(
@@ -251,6 +252,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                         );
                       },
                     ),
+
                   ),
                 );
               },

@@ -1,3 +1,4 @@
+import 'package:cofe_reward/config/api_config.dart';
 import 'package:flutter/material.dart';
 import '../constants/app_constants.dart';
 import '../services/category_service.dart';
@@ -558,14 +559,17 @@ class _ProductsScreenState extends State<ProductsScreen> {
                     ),
                     child: product.imageUrl != null
                         ? Image.network(
-                            'http://192.168.0.102:8000/storage/${product.imageUrl}',
-                            fit: BoxFit
-                                .cover, // Ensures image fills the 160px height
-                            errorBuilder: (context, error, stackTrace) =>
-                                const Icon(
-                                  Icons.image_not_supported,
-                                  color: AppColors.greyText,
-                                ),
+                            '${ApiConfig.storageUrl}${product.imageUrl}',
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: double.infinity,
+                            errorBuilder: (context, error, stackTrace) {
+                              return const Icon(
+                                Icons.image_not_supported,
+                                size: 48,
+                                color: AppColors.greyText,
+                              );
+                            },
                           )
                         : const Icon(
                             Icons.inventory_2_outlined,
@@ -800,17 +804,14 @@ class _ProductsScreenState extends State<ProductsScreen> {
                               topRight: Radius.circular(AppBorderRadius.medium),
                             ),
                             child: Image.network(
-                              'http://192.168.0.102:8000/storage/${product.imageUrl}',
-                              fit: BoxFit.cover,
-                              width: double.infinity,
-                              height: double.infinity,
-                              errorBuilder: (context, error, stackTrace) {
-                                return const Icon(
-                                  Icons.image_not_supported,
-                                  size: 48,
-                                  color: AppColors.greyText,
-                                );
-                              },
+                              '${ApiConfig.storageUrl}${product.imageUrl}',
+                              fit: BoxFit
+                                  .cover, // Ensures image fills the 160px height
+                              errorBuilder: (context, error, stackTrace) =>
+                                  const Icon(
+                                    Icons.image_not_supported,
+                                    color: AppColors.greyText,
+                                  ),
                             ),
                           )
                         : const Icon(
