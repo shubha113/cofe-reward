@@ -252,7 +252,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                         );
                       },
                     ),
-
                   ),
                 );
               },

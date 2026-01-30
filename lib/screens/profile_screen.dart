@@ -153,6 +153,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: AppSpacing.lg),
                     _buildFavoritesSection(),
                     const SizedBox(height: AppSpacing.lg),
+                    _buildPointsSection(),
+                    const SizedBox(height: AppSpacing.lg),
+
                     _buildAccountActions(),
                     const SizedBox(height: AppSpacing.xl),
                   ],
@@ -532,6 +535,101 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  Widget _buildPointsSection() {
+    // Temporary value – later you can fetch from API
+    final int points = _userData?['points'] ?? 0;
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [AppColors.lightRed, AppColors.primaryRed],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(AppBorderRadius.large),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primaryRed.withOpacity(0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          // Icon
+          Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              color: AppColors.white.withOpacity(0.2),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.stars_rounded,
+              size: 32,
+              color: AppColors.white,
+            ),
+          ),
+
+          const SizedBox(width: AppSpacing.lg),
+
+          // Text
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'My Points',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.white,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Earn rewards for every claim',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: AppColors.white.withOpacity(0.9),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Points value
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                points.toString(),
+                style: const TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.white,
+                ),
+              ),
+              const Text(
+                'POINTS',
+                style: TextStyle(
+                  fontSize: 10,
+                  letterSpacing: 1.2,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.white,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+
   Widget _buildFavoriteItem(Map<String, dynamic> item, int index) {
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.md),
@@ -637,20 +735,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Help & Support coming soon!')),
               );
-            },
-          ),
-          Divider(
-            color: AppColors.borderGrey.withOpacity(0.5),
-            height: 1,
-            indent: AppSpacing.lg,
-            endIndent: AppSpacing.lg,
-          ),
-          _buildActionTile(
-            icon: Icons.info_outline,
-            title: 'About',
-            subtitle: 'Version 1.0.0',
-            onTap: () {
-              _showAboutDialog();
             },
           ),
           Divider(

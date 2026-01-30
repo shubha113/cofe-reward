@@ -5,6 +5,7 @@ import 'constants/app_constants.dart';
 import 'screens/sign_in_screen.dart';
 import 'screens/select_provider_type_screen.dart';
 import 'screens/sign_up_screen.dart';
+import 'screens/splash_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -88,10 +89,12 @@ class MyApp extends StatelessWidget {
         ),
       ),
       // Define named routes
+      initialRoute: '/',
       routes: {
+        '/': (context) => const SplashScreen(),
         '/sign-in': (context) => const SignInScreen(),
         '/select-provider': (context) => const SelectProviderTypeScreen(),
-        '/': (context) => const MainNavigationScreen(),
+        '/main': (context) => const MainNavigationScreen(),
       },
       // Handle routes with arguments
       onGenerateRoute: (settings) {

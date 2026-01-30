@@ -18,9 +18,9 @@ class MainCategory {
 
   factory MainCategory.fromJson(Map<String, dynamic> json) {
     return MainCategory(
-      id: json['id'],
-      name: json['name'],
-      slug: json['slug'],
+      id: json['id'] ?? 0,
+      name: json['name'] ?? 'Unknown',
+      slug: json['slug'] ?? '',
       priority: json['priority'] ?? 0,
       seoTitle: json['seo_title'],
       seoDescription: json['seo_description'],
@@ -53,8 +53,8 @@ class ProductCategory {
   factory ProductCategory.fromJson(Map<String, dynamic> json) {
     return ProductCategory(
       id: json['id'],
-      name: json['name'],
-      slug: json['slug'],
+      name: json['name'] ?? 'Unknown',
+      slug: json['slug'] ?? '',
       mainCategoryId: json['main_category_id'],
       priority: json['priority'] ?? 0,
       image: json['image'],

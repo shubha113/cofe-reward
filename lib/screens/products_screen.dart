@@ -222,60 +222,109 @@ class _ProductsScreenState extends State<ProductsScreen> {
   }
 
   Widget _buildSearchBar() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        AppSpacing.lg,
+        AppSpacing.lg,
+        AppSpacing.sm,
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 14,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: TextField(
+          controller: _searchController,
+          focusNode: _searchFocusNode,
+          onChanged: (value) {
+            Future.delayed(const Duration(milliseconds: 400), () {
+              if (_searchController.text == value) {
+                _searchProducts(value);
+              }
+            });
+          },
+          decoration: InputDecoration(
+            hintText: 'Search rewards, products',
+            prefixIcon: const Icon(
+              Icons.search_rounded,
+              color: AppColors.primaryRed,
+            ),
+            suffixIcon: _searchController.text.isNotEmpty
+                ? IconButton(
+                    icon: const Icon(Icons.close_rounded),
+                    onPressed: _clearSearch,
+                  )
+                : null,
+            border: InputBorder.none,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.md,
+              vertical: AppSpacing.md,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCategoryChips() {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.lg,
-        vertical: AppSpacing.md,
-      ),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        border: Border(
-          bottom: BorderSide(color: AppColors.borderGrey, width: 1),
-        ),
-      ),
-      child: TextField(
-        controller: _searchController,
-        focusNode: _searchFocusNode,
-        onChanged: (value) {
-          // Debounce search
-          Future.delayed(const Duration(milliseconds: 500), () {
-            if (_searchController.text == value) {
-              _searchProducts(value);
-            }
-          });
-        },
-        onSubmitted: _searchProducts,
-        decoration: InputDecoration(
-          hintText: 'Search products...',
-          hintStyle: AppTextStyles.bodyMedium.copyWith(
-            color: AppColors.greyText,
-          ),
-          prefixIcon: const Icon(
-            Icons.search,
-            color: AppColors.greyText,
-            size: 22,
-          ),
-          suffixIcon: _searchController.text.isNotEmpty
-              ? IconButton(
-                  icon: const Icon(
-                    Icons.clear,
-                    color: AppColors.greyText,
-                    size: 20,
+      height: 54,
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        itemCount: _mainCategories.length,
+        itemBuilder: (context, index) {
+          final category = _mainCategories[index];
+          final isSelected = _selectedCategoryId == category.id;
+
+          return GestureDetector(
+            onTap: () => _selectCategory(category.id),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 250),
+              margin: const EdgeInsets.only(right: AppSpacing.sm),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.lg,
+                vertical: AppSpacing.sm,
+              ),
+              decoration: BoxDecoration(
+                color: isSelected ? AppColors.primaryRed : AppColors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: isSelected
+                      ? AppColors.primaryRed
+                      : AppColors.borderGrey,
+                ),
+                boxShadow: isSelected
+                    ? [
+                        BoxShadow(
+                          color: AppColors.primaryRed.withOpacity(0.3),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ]
+                    : [],
+              ),
+              child: Center(
+                child: Text(
+                  category.name,
+                  style: AppTextStyles.bodySmall.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: isSelected ? AppColors.white : AppColors.darkText,
                   ),
-                  onPressed: _clearSearch,
-                )
-              : null,
-          filled: true,
-          fillColor: AppColors.greyBackground,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(AppBorderRadius.medium),
-            borderSide: BorderSide.none,
-          ),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.md,
-            vertical: AppSpacing.sm,
-          ),
-        ),
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -325,85 +374,11 @@ class _ProductsScreenState extends State<ProductsScreen> {
       return const Center(child: Text('No categories available'));
     }
 
-    return Row(
+    return Column(
       children: [
-        // Left sidebar - Main categories
-        _buildCategorySidebar(),
-
-        // Right content - Product categories with products
+        _buildCategoryChips(),
         Expanded(child: _buildProductsContent()),
       ],
-    );
-  }
-
-  Widget _buildCategorySidebar() {
-    return Container(
-      width: 100, // Fixed width is fine for sidebars
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        border: Border(
-          right: BorderSide(color: AppColors.borderGrey, width: 1),
-        ),
-      ),
-      child: ListView.builder(
-        // This makes it "infinite" based on your backend data
-        itemCount: _mainCategories.length,
-        // Ensures smooth scrolling even with many items
-        physics: const BouncingScrollPhysics(),
-        itemBuilder: (context, index) {
-          final category = _mainCategories[index];
-          final isSelected = _selectedCategoryId == category.id;
-
-          return InkWell(
-            onTap: () => _selectCategory(category.id),
-            child: AnimatedContainer(
-              // Added animation for a premium feel
-              duration: const Duration(milliseconds: 200),
-              padding: const EdgeInsets.symmetric(
-                vertical: AppSpacing
-                    .lg, // Increased vertical padding for better touch targets
-                horizontal: AppSpacing.xs,
-              ),
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? AppColors.primaryRed.withOpacity(0.08)
-                    : Colors.transparent,
-                border: Border(
-                  left: BorderSide(
-                    color: isSelected
-                        ? AppColors.primaryRed
-                        : Colors.transparent,
-                    width: 3,
-                  ),
-                ),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // If you ever add icons to your categories, they go here
-                  Text(
-                    category.name,
-                    style: AppTextStyles.bodySmall.copyWith(
-                      fontSize: 12,
-                      height: 1.2,
-                      fontWeight: isSelected
-                          ? FontWeight.bold
-                          : FontWeight.w500,
-                      color: isSelected
-                          ? AppColors.primaryRed
-                          : AppColors.darkText,
-                    ),
-                    textAlign: TextAlign.center,
-                    maxLines:
-                        3, // Increased to 3 lines so long names don't vanish
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
     );
   }
 
@@ -484,15 +459,14 @@ class _ProductsScreenState extends State<ProductsScreen> {
           // Products horizontal scroll
           if (hasProducts)
             SizedBox(
-              height: 100,
+              height: 120,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
                 itemCount: categoryWithProducts.products.length > 4
-                    ? 5 // Show 4 products + "View More" card
+                    ? 5
                     : categoryWithProducts.products.length,
                 itemBuilder: (context, index) {
-                  // Show "View More" card at the end if more than 4 products
                   if (index == 4 && categoryWithProducts.totalCount > 4) {
                     return _buildViewMoreCard(categoryWithProducts);
                   }
@@ -521,8 +495,8 @@ class _ProductsScreenState extends State<ProductsScreen> {
 
   Widget _buildProductCard(Product product) {
     return Container(
-      width: 80,
-      margin: const EdgeInsets.only(right: AppSpacing.lg),
+      width: 85,
+      margin: const EdgeInsets.only(right: AppSpacing.md),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
@@ -536,67 +510,51 @@ class _ProductsScreenState extends State<ProductsScreen> {
             );
           },
           borderRadius: BorderRadius.circular(AppBorderRadius.medium),
-          child: Container(
-            decoration: BoxDecoration(color: Colors.transparent),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // IMAGE SECTION
-                Container(
-                  height: 60,
-                  width: double.infinity,
-                  decoration: const BoxDecoration(
-                    color: Colors.transparent,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(AppBorderRadius.medium),
-                      topRight: Radius.circular(AppBorderRadius.medium),
-                    ),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(AppBorderRadius.medium),
-                      topRight: Radius.circular(AppBorderRadius.medium),
-                    ),
-                    child: product.imageUrl != null
-                        ? Image.network(
-                            '${ApiConfig.storageUrl}${product.imageUrl}',
-                            fit: BoxFit.cover,
-                            width: double.infinity,
-                            height: double.infinity,
-                            errorBuilder: (context, error, stackTrace) {
-                              return const Icon(
-                                Icons.image_not_supported,
-                                size: 48,
-                                color: AppColors.greyText,
-                              );
-                            },
-                          )
-                        : const Icon(
-                            Icons.inventory_2_outlined,
-                            color: AppColors.greyText,
-                          ),
-                  ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                height: 70,
+                width: 70,
+                decoration: const BoxDecoration(color: Colors.transparent),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(AppBorderRadius.medium),
+                  child: product.imageUrl != null
+                      ? Image.network(
+                          '${ApiConfig.storageUrl}${product.imageUrl}',
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Icon(
+                              Icons.image_not_supported,
+                              size: 32,
+                              color: AppColors.greyText,
+                            );
+                          },
+                        )
+                      : const Icon(
+                          Icons.inventory_2_outlined,
+                          color: AppColors.greyText,
+                        ),
                 ),
+              ),
 
-                // NAME SECTION
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.xs,
-                    vertical: 4, // Small vertical padding to keep it tight
+              const SizedBox(height: 6),
+
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Text(
+                  product.name,
+                  style: AppTextStyles.bodySmall.copyWith(
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.darkText,
+                    fontSize: 11,
                   ),
-                  child: Text(
-                    product.name,
-                    style: AppTextStyles.bodySmall.copyWith(
-                      fontWeight: FontWeight.w400,
-                      color: Colors.black,
-                      fontSize: 12,
-                    ),
-                    maxLines: 1, // Limited to 1 line to save space
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -631,7 +589,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
             children: [
               // TOP (IMAGE-LIKE AREA)
               Container(
-                height: 60,
+                height: 70,
                 width: double.infinity,
                 decoration: BoxDecoration(
                   color: AppColors.primaryRed.withOpacity(0.1),

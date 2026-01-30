@@ -187,26 +187,33 @@ class _SignInScreenState extends State<SignInScreen>
                             ),
                           ),
                           // Icon
+                          // Image Logo replacement
                           Center(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Container(
-                                  width: 80,
-                                  height: 80,
+                                  width: 100, // Slightly larger for an image
+                                  height: 100,
                                   decoration: BoxDecoration(
                                     color: Colors.white.withOpacity(0.2),
                                     shape: BoxShape.circle,
                                   ),
-                                  child: const Icon(
-                                    Icons.coffee,
-                                    size: 40,
-                                    color: AppColors.white,
+                                  child: ClipOval(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(
+                                        15.0,
+                                      ),
+                                      child: Image.asset(
+                                        'assets/images/cofee.png',
+                                        fit: BoxFit.contain,
+                                      ),
+                                    ),
                                   ),
                                 ),
                                 const SizedBox(height: AppSpacing.md),
                                 const Text(
-                                  'Cofe Reward',
+                                  'COFE REWARD',
                                   style: TextStyle(
                                     color: AppColors.white,
                                     fontSize: 24,

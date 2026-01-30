@@ -34,25 +34,38 @@ class Product {
 
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
-      id: json['id'],
-      name: json['name'],
-      slug: json['slug'],
+      id: json['id'] ?? 0,
+
+      name: json['name'] ?? 'Unnamed Product',
+      slug: json['slug'] ?? '',
+
       shortDescription: json['short_description'],
       description: json['description'],
       hardwareInfo: json['hardware_info'],
       manualUrl: json['manual_url'],
       datasheetUrl: json['datasheet_url'],
       imageUrl: json['image_url'],
-      images: (json['images'] as List?)
-          ?.map((img) => ProductImage.fromJson(img))
-          .toList() ??
+
+      images:
+          (json['images'] as List?)
+              ?.map((img) => ProductImage.fromJson(img))
+              .toList() ??
           [],
+
       isActive: json['is_active'] ?? true,
-      createdAt: DateTime.parse(json['created_at']),
-      updatedAt: DateTime.parse(json['updated_at']),
-      attributes: (json['attributes'] as List?)
-          ?.map((attr) => ProductAttribute.fromJson(attr))
-          .toList() ??
+
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'])
+          : DateTime.now(),
+
+      updatedAt: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'])
+          : DateTime.now(),
+
+      attributes:
+          (json['attributes'] as List?)
+              ?.map((attr) => ProductAttribute.fromJson(attr))
+              .toList() ??
           [],
     );
   }
@@ -68,10 +81,7 @@ class ProductImage {
   ProductImage({this.upload, this.url});
 
   factory ProductImage.fromJson(Map<String, dynamic> json) {
-    return ProductImage(
-      upload: json['upload'],
-      url: json['url'],
-    );
+    return ProductImage(upload: json['upload'], url: json['url']);
   }
 }
 
@@ -81,17 +91,13 @@ class ProductAttribute {
   final String name;
   final String value;
 
-  ProductAttribute({
-    required this.id,
-    required this.name,
-    required this.value,
-  });
+  ProductAttribute({required this.id, required this.name, required this.value});
 
   factory ProductAttribute.fromJson(Map<String, dynamic> json) {
     return ProductAttribute(
-      id: json['id'],
-      name: json['name'],
-      value: json['value'],
+      id: json['id'] ?? 0,
+      name: json['name'] ?? 'Unknown',
+      value: json['value'] ?? '',
     );
   }
 }

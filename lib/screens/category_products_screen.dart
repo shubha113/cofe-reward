@@ -1,3 +1,4 @@
+import 'package:cofe_reward/config/api_config.dart';
 import 'package:flutter/material.dart';
 import '../constants/app_constants.dart';
 import '../services/product_service.dart';
@@ -284,19 +285,17 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
                               topLeft: Radius.circular(AppBorderRadius.medium),
                               topRight: Radius.circular(AppBorderRadius.medium),
                             ),
-                            child: Image.network(
-                              'http://192.168.0.104:8000/storage/${product.imageUrl}',
-                              fit: BoxFit.cover,
-                              width: double.infinity,
-                              height: double.infinity,
-                              errorBuilder: (context, error, stackTrace) {
-                                return const Icon(
-                                  Icons.image_not_supported,
-                                  size: 48,
-                                  color: AppColors.greyText,
-                                );
-                              },
-                            ),
+                      child: Image.network(
+                        '${ApiConfig.storageUrl}${product.imageUrl}',
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) {
+                          return const Icon(
+                            Icons.image_not_supported,
+                            size: 48,
+                            color: AppColors.greyText,
+                          );
+                        },
+                      ),
                           )
                         : const Icon(
                             Icons.inventory_2_outlined,

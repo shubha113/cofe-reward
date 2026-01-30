@@ -40,8 +40,6 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
   bool _agreedToTerms = false;
   bool _isLoading = false;
   bool _isVerifyingOtp = false;
-  bool _isResendingOtp = false;
-  bool _isRegistering = false;
   bool _isVerifying = false;
   bool _otpSent = false;
   String? _registeredPhone;
@@ -432,20 +430,27 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
             ),
             const SizedBox(width: AppSpacing.sm),
             ElevatedButton(
-              onPressed: _isPhoneVerified
+              onPressed: _isPhoneVerified || _isVerifying
                   ? null
-                  : (_otpSent ? _handleVerifyOtp : _handleSendOtp),
+                  : _handleSendOtp,
               style: ElevatedButton.styleFrom(
-                backgroundColor: _isPhoneVerified
-                    ? Colors.green
-                    : AppColors.primaryRed,
+                backgroundColor:
+                _isPhoneVerified ? Colors.green : AppColors.primaryRed,
               ),
-              child: Text(
-                _isPhoneVerified
-                    ? 'Verified'
-                    : (_otpSent ? 'Verify Phone' : 'Send OTP'),
+              child: _isVerifying
+                  ? const SizedBox(
+                height: 18,
+                width: 18,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Colors.white,
+                ),
+              )
+                  : Text(
+                _isPhoneVerified ? 'Verified' : 'Send OTP',
               ),
             ),
+
           ],
         ),
       ],
@@ -731,40 +736,61 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
                         const SizedBox(height: AppSpacing.lg),
 
                         // OTP Field with resend link
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            _buildInputField(
-                              label: 'Verification Code',
-                              hint: 'Enter 6-digit OTP',
-                              controller: _otpController,
-                              isRequired: true,
-                              prefixIcon: Icons.security,
-                              keyboardType: TextInputType.number,
-                              maxLength: 6,
-                              inputFormatters: [
-                                FilteringTextInputFormatter.digitsOnly,
-                              ],
+                            Expanded(
+                              child: _buildInputField(
+                                label: 'Verification Code',
+                                hint: 'Enter 6-digit OTP',
+                                controller: _otpController,
+                                isRequired: true,
+                                prefixIcon: Icons.security,
+                                keyboardType: TextInputType.number,
+                                maxLength: 6,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.digitsOnly,
+                                ],
+                              ),
                             ),
-                            const SizedBox(height: AppSpacing.sm),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: TextButton(
-                                onPressed: _isLoading ? null : _handleResendOtp,
-                                child: Text(
-                                  _isLoading
-                                      ? 'Resending...'
-                                      : 'Didn\'t receive verification code?',
-                                  style: AppTextStyles.bodySmall.copyWith(
-                                    color: AppColors.illustrationDarkBlue,
-                                    fontWeight: FontWeight.w600,
-                                    decoration: TextDecoration.underline,
+
+                            const SizedBox(width: AppSpacing.sm),
+
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 6),
+                              child: SizedBox(
+                                height: 48,
+                                child: ElevatedButton(
+                                  onPressed: _isPhoneVerified || !_otpSent || _isVerifyingOtp
+                                      ? null
+                                      : _handleVerifyOtp,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: _isPhoneVerified
+                                        ? Colors.green
+                                        : AppColors.primaryRed,
+                                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(AppBorderRadius.medium),
+                                    ),
+                                  ),
+                                  child: _isVerifyingOtp
+                                      ? const SizedBox(
+                                    height: 18,
+                                    width: 18,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                      : Text(
+                                    _isPhoneVerified ? 'Verified' : 'Verify',
                                   ),
                                 ),
                               ),
                             ),
                           ],
                         ),
+
                         const SizedBox(height: AppSpacing.lg),
 
                         _buildInputField(
