@@ -2,6 +2,8 @@ class ApiConfig {
   /// BASE URL
   // The base domain
   static const String domain = 'https://cofesolutions.cofesolutions.com';
+  //http://192.168.0.102:8000
+  //https://cofesolutions.cofesolutions.com
 
   // API path
   static const String baseUrl = '$domain/api/v1';
@@ -11,17 +13,22 @@ class ApiConfig {
 
   /// AUTH ENDPOINTS
   static const String sendOtp = '/auth/send-otp';
+  static const String loginSendOtp = '/auth/login/send-otp';
   static const String verifyOtp = '/auth/verify-phone';
   static const String resendOtp = '/auth/resend-otp';
   static const String register = '/auth/register';
   static const String login = '/auth/login';
+  static const String loginOtp = '/auth/login-otp';
   static const String logout = '/auth/logout';
   static const String profile = '/profile';
 
-  /// DEVICE CLAIM ENDPOINT
-  static const String claimDevice = '/device/claim';
+  /// DEVICE CLAIM ENDPOINTS
+  static const String claimValidate = '/device/claim/validate';
+  static const String claimMyClaims = '/device/claim/my-claims';
+  static String claimDocuments(int batchId) => '/device/claim/$batchId/documents';
+  static String claimSubmit(int batchId) => '/device/claim/$batchId/submit';
 
-  /// CATEGORY ENDPOINTS (NEW - ID based)
+  /// CATEGORY ENDPOINTS
   static const String categories = '/categories';
   static String categorySubcategories(int mainCategoryId) =>
       '/categories/$mainCategoryId/subcategories';

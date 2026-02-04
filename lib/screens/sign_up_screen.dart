@@ -9,22 +9,21 @@ import 'location_selection_screen.dart';
 class SignUpScreen extends StatefulWidget {
   final String providerType;
 
-  const SignUpScreen({
-    Key? key,
-    required this.providerType,
-  }) : super(key: key);
+  const SignUpScreen({Key? key, required this.providerType}) : super(key: key);
 
   @override
   State<SignUpScreen> createState() => _SignUpScreenState();
 }
 
-class _SignUpScreenState extends State<SignUpScreen> with TickerProviderStateMixin {
+class _SignUpScreenState extends State<SignUpScreen>
+    with TickerProviderStateMixin {
   final TextEditingController _companyController = TextEditingController();
   final TextEditingController _jobTitleController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
 
+  String? selectedCountry;
   String? selectedState;
   String? selectedCity;
   late AnimationController _animationController;
@@ -54,10 +53,7 @@ class _SignUpScreenState extends State<SignUpScreen> with TickerProviderStateMix
     );
 
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeIn,
-      ),
+      CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
     );
 
     _animationController.forward();
@@ -79,9 +75,7 @@ class _SignUpScreenState extends State<SignUpScreen> with TickerProviderStateMix
   void _navigateToJobTitleSelection() async {
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => const JobTitleSelectionScreen(),
-      ),
+      MaterialPageRoute(builder: (context) => const JobTitleSelectionScreen()),
     );
 
     if (result != null) {
@@ -94,18 +88,55 @@ class _SignUpScreenState extends State<SignUpScreen> with TickerProviderStateMix
   void _navigateToLocationSelection() async {
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => const LocationSelectionScreen(),
-      ),
+      MaterialPageRoute(builder: (context) => const LocationSelectionScreen()),
     );
 
-    if (result != null && result is Map<String, String>) {
+    // Cast as Map to ensure we can read the keys
+    if (result != null && result is Map) {
       setState(() {
-        selectedState = result['state'];
-        selectedCity = result['city'];
-        _locationController.text = '${result['state']}, ${result['city']}';
+        selectedCountry = result['country']?.toString();
+        selectedState = result['state']?.toString();
+        selectedCity = result['city']?.toString();
+
+        // Update the actual text field
+        _locationController.text =
+            '$selectedCountry, $selectedState, $selectedCity';
       });
     }
+
+    if (selectedCountry != null &&
+        selectedState != null &&
+        selectedCity != null)
+      Container(
+        margin: const EdgeInsets.only(top: AppSpacing.sm),
+        padding: const EdgeInsets.all(AppSpacing.sm),
+        decoration: BoxDecoration(
+          color: AppColors.selectedBackground,
+          borderRadius: BorderRadius.circular(AppBorderRadius.small),
+          border: Border.all(
+            color: AppColors.primaryRed.withValues(alpha: 0.3),
+          ),
+        ),
+        child: Row(
+          children: [
+            const Icon(
+              Icons.check_circle,
+              color: AppColors.primaryRed,
+              size: 16,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Selected: $selectedCountry, $selectedState, $selectedCity',
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: AppColors.primaryRed,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
   }
 
   Widget _buildInputField({
@@ -173,10 +204,14 @@ class _SignUpScreenState extends State<SignUpScreen> with TickerProviderStateMix
                   prefixIcon: prefixIcon != null
                       ? Icon(prefixIcon, color: AppColors.primaryRed)
                       : null,
-                  suffixIcon: suffixIcon ??
+                  suffixIcon:
+                      suffixIcon ??
                       (readOnly
-                          ? const Icon(Icons.arrow_forward_ios,
-                          size: 16, color: AppColors.greyText)
+                          ? const Icon(
+                              Icons.arrow_forward_ios,
+                              size: 16,
+                              color: AppColors.greyText,
+                            )
                           : null),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(AppBorderRadius.medium),
@@ -293,7 +328,8 @@ class _SignUpScreenState extends State<SignUpScreen> with TickerProviderStateMix
                                             shape: BoxShape.circle,
                                             boxShadow: [
                                               BoxShadow(
-                                                color: AppColors.primaryRed.withValues(alpha: 0.4),
+                                                color: AppColors.primaryRed
+                                                    .withValues(alpha: 0.4),
                                                 blurRadius: 12,
                                                 offset: const Offset(0, 4),
                                               ),
@@ -318,14 +354,17 @@ class _SignUpScreenState extends State<SignUpScreen> with TickerProviderStateMix
                                   Expanded(
                                     child: Container(
                                       height: 4,
-                                      margin: const EdgeInsets.symmetric(horizontal: 8),
+                                      margin: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                      ),
                                       decoration: BoxDecoration(
                                         color: AppColors.greyBackground,
                                         borderRadius: BorderRadius.circular(2),
                                       ),
                                       child: FractionallySizedBox(
                                         alignment: Alignment.centerLeft,
-                                        widthFactor: _progressAnimation.value * 2,
+                                        widthFactor:
+                                            _progressAnimation.value * 2,
                                         child: Container(
                                           decoration: BoxDecoration(
                                             gradient: const LinearGradient(
@@ -334,10 +373,13 @@ class _SignUpScreenState extends State<SignUpScreen> with TickerProviderStateMix
                                                 AppColors.primaryRed,
                                               ],
                                             ),
-                                            borderRadius: BorderRadius.circular(2),
+                                            borderRadius: BorderRadius.circular(
+                                              2,
+                                            ),
                                             boxShadow: [
                                               BoxShadow(
-                                                color: AppColors.primaryRed.withValues(alpha: 0.3),
+                                                color: AppColors.primaryRed
+                                                    .withValues(alpha: 0.3),
                                                 blurRadius: 8,
                                                 offset: const Offset(0, 2),
                                               ),
@@ -378,45 +420,52 @@ class _SignUpScreenState extends State<SignUpScreen> with TickerProviderStateMix
 
                               // Step Labels
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           'Basic Info',
-                                          style: AppTextStyles.bodyMedium.copyWith(
-                                            color: AppColors.primaryRed,
-                                            fontWeight: FontWeight.bold,
-                                          ),
+                                          style: AppTextStyles.bodyMedium
+                                              .copyWith(
+                                                color: AppColors.primaryRed,
+                                                fontWeight: FontWeight.bold,
+                                              ),
                                         ),
                                         const SizedBox(height: 2),
                                         Text(
                                           'Step 1 of 2',
-                                          style: AppTextStyles.bodySmall.copyWith(
-                                            color: AppColors.greyText,
-                                          ),
+                                          style: AppTextStyles.bodySmall
+                                              .copyWith(
+                                                color: AppColors.greyText,
+                                              ),
                                         ),
                                       ],
                                     ),
                                   ),
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
                                       children: [
                                         Text(
                                           'Verification',
-                                          style: AppTextStyles.bodyMedium.copyWith(
-                                            color: AppColors.greyText,
-                                          ),
+                                          style: AppTextStyles.bodyMedium
+                                              .copyWith(
+                                                color: AppColors.greyText,
+                                              ),
                                         ),
                                         const SizedBox(height: 2),
                                         Text(
                                           'Coming next',
-                                          style: AppTextStyles.bodySmall.copyWith(
-                                            color: AppColors.lightGreyText,
-                                          ),
+                                          style: AppTextStyles.bodySmall
+                                              .copyWith(
+                                                color: AppColors.lightGreyText,
+                                              ),
                                         ),
                                       ],
                                     ),
@@ -429,7 +478,9 @@ class _SignUpScreenState extends State<SignUpScreen> with TickerProviderStateMix
                               // Title and Subtitle
                               Text(
                                 'Create Account',
-                                style: AppTextStyles.header1.copyWith(fontSize: 28),
+                                style: AppTextStyles.header1.copyWith(
+                                  fontSize: 28,
+                                ),
                               ),
                               const SizedBox(height: 4),
                               Row(
@@ -442,13 +493,19 @@ class _SignUpScreenState extends State<SignUpScreen> with TickerProviderStateMix
                                     decoration: BoxDecoration(
                                       gradient: LinearGradient(
                                         colors: [
-                                          AppColors.primaryRed.withValues(alpha: 0.1),
-                                          AppColors.lightRed.withValues(alpha: 0.1),
+                                          AppColors.primaryRed.withValues(
+                                            alpha: 0.1,
+                                          ),
+                                          AppColors.lightRed.withValues(
+                                            alpha: 0.1,
+                                          ),
                                         ],
                                       ),
                                       borderRadius: BorderRadius.circular(20),
                                       border: Border.all(
-                                        color: AppColors.primaryRed.withValues(alpha: 0.3),
+                                        color: AppColors.primaryRed.withValues(
+                                          alpha: 0.3,
+                                        ),
                                       ),
                                     ),
                                     child: Row(
@@ -462,10 +519,11 @@ class _SignUpScreenState extends State<SignUpScreen> with TickerProviderStateMix
                                         const SizedBox(width: 4),
                                         Text(
                                           'Join as $providerTypeName',
-                                          style: AppTextStyles.bodySmall.copyWith(
-                                            color: AppColors.primaryRed,
-                                            fontWeight: FontWeight.w600,
-                                          ),
+                                          style: AppTextStyles.bodySmall
+                                              .copyWith(
+                                                color: AppColors.primaryRed,
+                                                fontWeight: FontWeight.w600,
+                                              ),
                                         ),
                                       ],
                                     ),
@@ -529,15 +587,20 @@ class _SignUpScreenState extends State<SignUpScreen> with TickerProviderStateMix
                           prefixIcon: Icons.location_on_outlined,
                         ),
 
-                        if (selectedState != null && selectedCity != null)
+                        if (selectedCountry != null ||
+                            selectedState != null && selectedCity != null)
                           Container(
                             margin: const EdgeInsets.only(top: AppSpacing.sm),
                             padding: const EdgeInsets.all(AppSpacing.sm),
                             decoration: BoxDecoration(
                               color: AppColors.selectedBackground,
-                              borderRadius: BorderRadius.circular(AppBorderRadius.small),
+                              borderRadius: BorderRadius.circular(
+                                AppBorderRadius.small,
+                              ),
                               border: Border.all(
-                                color: AppColors.primaryRed.withValues(alpha: 0.3),
+                                color: AppColors.primaryRed.withValues(
+                                  alpha: 0.3,
+                                ),
                               ),
                             ),
                             child: Row(
@@ -550,7 +613,7 @@ class _SignUpScreenState extends State<SignUpScreen> with TickerProviderStateMix
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
-                                    'Selected: $selectedState, $selectedCity',
+                                    'Selected: $selectedCountry, $selectedState, $selectedCity',
                                     style: AppTextStyles.bodySmall.copyWith(
                                       color: AppColors.primaryRed,
                                       fontWeight: FontWeight.w600,
@@ -602,7 +665,9 @@ class _SignUpScreenState extends State<SignUpScreen> with TickerProviderStateMix
                               );
                               return;
                             }
-                            if (selectedState == null || selectedCity == null) {
+                            if (selectedCountry == null ||
+                                selectedState == null ||
+                                selectedCity == null) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text('Please select location'),
@@ -622,6 +687,7 @@ class _SignUpScreenState extends State<SignUpScreen> with TickerProviderStateMix
                                     'company': _companyController.text,
                                     'jobTitle': _jobTitleController.text,
                                     'email': _emailController.text,
+                                    'country': selectedCountry!,
                                     'state': selectedState!,
                                     'city': selectedCity!,
                                   },

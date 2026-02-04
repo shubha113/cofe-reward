@@ -1,8 +1,10 @@
 import 'package:cofe_reward/config/api_config.dart';
+import 'package:cofe_reward/screens/claim_device_screen.dart';
+import 'package:flutter/foundation.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:image_picker/image_picker.dart' as img;
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:flutter/material.dart';
-import 'dart:io';
 import '../constants/app_constants.dart';
 import '../services/product_service.dart';
 import '../services/claim_service.dart';
@@ -171,6 +173,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
 
     return Scaffold(
       backgroundColor: AppColors.white,
+      bottomNavigationBar: _buildClaimBar(),
       body: SafeArea(
         child: Column(
           children: [
@@ -285,7 +288,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Colors.black.withValues(alpha: 0.1),
                       blurRadius: 10,
                       offset: const Offset(0, 2),
                     ),
@@ -307,7 +310,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 10,
                     offset: const Offset(0, 2),
                   ),
@@ -354,7 +357,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
         color: AppColors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -381,29 +384,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                       ),
                     ),
                   ],
-                ),
-              ),
-
-              // Claim button
-              ElevatedButton(
-                onPressed: _showClaimDeviceBottomSheet,
-                style: ElevatedButton.styleFrom(
-                  elevation: 0,
-                  backgroundColor: AppColors.primaryRed,
-                  foregroundColor: AppColors.white,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: const Text(
-                  'Claim',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
               ),
 
@@ -529,7 +509,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
           ),
           const SizedBox(height: AppSpacing.md),
           ..._product!.attributes.map(
-            (attr) => _buildSpecRow(attr.name, attr.value),
+            (attr) => _buildSpecRow(attr.attributeKey, attr.value),
           ),
         ],
       ],
@@ -541,7 +521,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: AppColors.borderGrey.withOpacity(0.5)),
+          bottom: BorderSide(color: AppColors.borderGrey.withValues(alpha: 0.5)),
         ),
       ),
       child: Row(
@@ -647,11 +627,19 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
             ),
           ),
           IconButton(
-            onPressed: () {
-              // Open URL
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text('Opening: $url')));
+            onPressed: () async {
+              final Uri uri = Uri.parse(url);
+
+              if (await canLaunchUrl(uri)) {
+                await launchUrl(uri, mode: LaunchMode.externalApplication);
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Could not open document'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
             },
             icon: Container(
               padding: const EdgeInsets.all(8),
@@ -671,457 +659,91 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
     );
   }
 
-  void _showClaimDeviceBottomSheet() {
-    final TextEditingController serialController = TextEditingController();
-    String? errorMessage;
-    File? selectedImage;
-    bool isSubmitting = false;
+  Widget _buildClaimBar() {
+    int count = 1;
 
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setModalState) {
-            return Container(
-              decoration: const BoxDecoration(
-                color: AppColors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  topRight: Radius.circular(20),
+    return StatefulBuilder(
+      builder: (context, setBarState) {
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.08),
+                blurRadius: 12,
+                offset: const Offset(0, -2),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              // Counter
+              Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: AppColors.primaryRed),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.remove),
+                      onPressed: count > 1
+                          ? () => setBarState(() => count--)
+                          : null,
+                    ),
+                    Text(
+                      '$count',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.add),
+                      onPressed: count < 50
+                          ? () => setBarState(() => count++)
+                          : null,
+                    ),
+                  ],
                 ),
               ),
-              padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom,
-              ),
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.all(AppSpacing.xl),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Handle bar
-                      Center(
-                        child: Container(
-                          width: 40,
-                          height: 4,
-                          margin: const EdgeInsets.only(bottom: AppSpacing.lg),
-                          decoration: BoxDecoration(
-                            color: AppColors.greyText.withOpacity(0.3),
-                            borderRadius: BorderRadius.circular(2),
-                          ),
+
+              const SizedBox(width: 12),
+
+              // Claim Button
+              Expanded(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryRed,
+                    foregroundColor: AppColors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ClaimDevicesScreen(
+                          productId: _product!.id,
+                          initialCount: count,
                         ),
                       ),
-
-                      // Title
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(AppSpacing.sm),
-                            decoration: BoxDecoration(
-                              color: AppColors.primaryRed.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(
-                                AppBorderRadius.small,
-                              ),
-                            ),
-                            child: const Icon(
-                              Icons.verified_user,
-                              color: AppColors.primaryRed,
-                              size: 24,
-                            ),
-                          ),
-                          const SizedBox(width: AppSpacing.md),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Claim Device',
-                                  style: AppTextStyles.header2.copyWith(
-                                    fontSize: 20,
-                                  ),
-                                ),
-                                Text(
-                                  _product?.name ?? '',
-                                  style: AppTextStyles.bodySmall.copyWith(
-                                    color: AppColors.greyText,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: AppSpacing.xl),
-
-                      // Serial Number Field
-                      Text(
-                        'Serial Number',
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.sm),
-                      TextField(
-                        controller: serialController,
-                        decoration: InputDecoration(
-                          hintText: 'Enter device serial number',
-                          prefixIcon: const Icon(
-                            Icons.qr_code,
-                            color: AppColors.greyText,
-                          ),
-                          filled: true,
-                          fillColor: AppColors.greyBackground,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(
-                              AppBorderRadius.medium,
-                            ),
-                            borderSide: BorderSide.none,
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: AppSpacing.md,
-                            vertical: AppSpacing.md,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.xl),
-
-                      // Upload Photo Section
-                      Text(
-                        'Installation Photo',
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.sm),
-
-                      // Photo preview or upload buttons
-                      if (selectedImage != null)
-                        Stack(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(
-                                AppBorderRadius.medium,
-                              ),
-                              child: Image.file(
-                                selectedImage!,
-                                height: 200,
-                                width: double.infinity,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                            Positioned(
-                              top: 8,
-                              right: 8,
-                              child: IconButton(
-                                onPressed: () {
-                                  setModalState(() {
-                                    selectedImage = null;
-                                  });
-                                },
-                                icon: Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    color: Colors.black.withOpacity(0.5),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(
-                                    Icons.close,
-                                    color: Colors.white,
-                                    size: 20,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        )
-                      else
-                        Column(
-                          children: [
-                            // Camera button
-                            InkWell(
-                              onTap: () async {
-                                final img.XFile? photo = await _imagePicker
-                                    .pickImage(
-                                      source: img.ImageSource.camera,
-                                      imageQuality: 70,
-                                      maxWidth: 1200,
-                                    );
-
-                                if (!mounted) return;
-
-                                if (photo != null) {
-                                  setModalState(() {
-                                    selectedImage = File(photo.path);
-                                  });
-                                }
-                              },
-                              borderRadius: BorderRadius.circular(
-                                AppBorderRadius.medium,
-                              ),
-                              child: Container(
-                                padding: const EdgeInsets.all(AppSpacing.lg),
-                                decoration: BoxDecoration(
-                                  color: AppColors.greyBackground,
-                                  borderRadius: BorderRadius.circular(
-                                    AppBorderRadius.medium,
-                                  ),
-                                  border: Border.all(
-                                    color: AppColors.borderGrey,
-                                    width: 1.5,
-                                    style: BorderStyle.solid,
-                                  ),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.all(
-                                        AppSpacing.sm,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: AppColors.primaryRed.withOpacity(
-                                          0.1,
-                                        ),
-                                        borderRadius: BorderRadius.circular(
-                                          AppBorderRadius.small,
-                                        ),
-                                      ),
-                                      child: const Icon(
-                                        Icons.camera_alt,
-                                        color: AppColors.primaryRed,
-                                        size: 24,
-                                      ),
-                                    ),
-                                    const SizedBox(width: AppSpacing.md),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'Take Photo',
-                                            style: AppTextStyles.bodyMedium
-                                                .copyWith(
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                          ),
-                                          Text(
-                                            'Use camera to capture installation',
-                                            style: AppTextStyles.bodySmall
-                                                .copyWith(
-                                                  color: AppColors.greyText,
-                                                ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    const Icon(
-                                      Icons.chevron_right,
-                                      color: AppColors.greyText,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: AppSpacing.md),
-
-                            // Gallery button
-                            InkWell(
-                              onTap: () async {
-                                final img.XFile? photo = await _imagePicker
-                                    .pickImage(
-                                      source: img.ImageSource.gallery,
-                                      imageQuality: 70,
-                                      maxWidth: 1200,
-                                    );
-
-                                if (!mounted) return;
-
-                                if (photo != null) {
-                                  setModalState(() {
-                                    selectedImage = File(photo.path);
-                                  });
-                                }
-                              },
-                              borderRadius: BorderRadius.circular(
-                                AppBorderRadius.medium,
-                              ),
-                              child: Container(
-                                padding: const EdgeInsets.all(AppSpacing.lg),
-                                decoration: BoxDecoration(
-                                  color: AppColors.greyBackground,
-                                  borderRadius: BorderRadius.circular(
-                                    AppBorderRadius.medium,
-                                  ),
-                                  border: Border.all(
-                                    color: AppColors.borderGrey,
-                                    width: 1.5,
-                                  ),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.all(
-                                        AppSpacing.sm,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: AppColors.primaryRed.withOpacity(
-                                          0.1,
-                                        ),
-                                        borderRadius: BorderRadius.circular(
-                                          AppBorderRadius.small,
-                                        ),
-                                      ),
-                                      child: const Icon(
-                                        Icons.photo_library,
-                                        color: AppColors.primaryRed,
-                                        size: 24,
-                                      ),
-                                    ),
-                                    const SizedBox(width: AppSpacing.md),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'Choose from Gallery',
-                                            style: AppTextStyles.bodyMedium
-                                                .copyWith(
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                          ),
-                                          Text(
-                                            'Select from device storage',
-                                            style: AppTextStyles.bodySmall
-                                                .copyWith(
-                                                  color: AppColors.greyText,
-                                                ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    const Icon(
-                                      Icons.chevron_right,
-                                      color: AppColors.greyText,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      const SizedBox(height: AppSpacing.xl),
-
-                      if (errorMessage != null)
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(12),
-                          margin: const EdgeInsets.only(bottom: 12),
-                          decoration: BoxDecoration(
-                            color: Colors.red.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.red),
-                          ),
-                          child: Text(
-                            errorMessage!,
-                            style: const TextStyle(
-                              color: Colors.red,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-
-
-                      // Submit Button
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: isSubmitting
-                              ? null
-                              : () async {
-                                  // Validate inputs
-                                  if (serialController.text.trim().isEmpty) {
-                                    setModalState(() {
-                                      errorMessage = 'Please enter serial number';
-                                    });
-                                    return;
-                                  }
-
-                                  if (selectedImage == null) {
-                                    setModalState(() {
-                                      errorMessage = 'Please upload installation photo';
-                                    });
-                                    return;
-                                  }
-
-                                  setModalState(() {
-                                    isSubmitting = true;
-                                  });
-
-                                  // Call backend API to claim device
-                                  final result = await _claimService
-                                      .claimDevice(
-                                        serialNumber: serialController.text
-                                            .trim(),
-                                        billPhoto: selectedImage!,
-                                      );
-
-                                  if (result['success'] == true) {
-                                    Navigator.pop(context);
-
-                                    ScaffoldMessenger.of(
-                                      Navigator.of(context, rootNavigator: true).context,
-                                    ).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Claim submitted successfully'),
-                                        backgroundColor: Colors.green,
-                                      ),
-                                    );
-                                  } else {
-                                    setModalState(() {
-                                      errorMessage = result['message'] ??
-                                          'This device is already claimed or under review';
-                                    });
-                                  }
-
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primaryRed,
-                            foregroundColor: AppColors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(
-                                AppBorderRadius.medium,
-                              ),
-                            ),
-                          ),
-                          child: isSubmitting
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: Colors.white,
-                                  ),
-                                )
-                              : const Text(
-                                  'Submit Claim',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                        ),
-                      ),
-                    ],
+                    );
+                  },
+                  child: Text(
+                    'Claim $count Device${count > 1 ? 's' : ''}',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ),
-            );
-          },
+            ],
+          ),
         );
       },
     );

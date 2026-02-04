@@ -298,7 +298,7 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
             borderRadius: BorderRadius.circular(AppBorderRadius.medium),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -370,7 +370,7 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
                   borderRadius: BorderRadius.circular(AppBorderRadius.medium),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
+                      color: Colors.black.withValues(alpha: 0.05),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -465,7 +465,7 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [AppColors.white, AppColors.lightBlue.withOpacity(0.2)],
+            colors: [AppColors.white, AppColors.lightBlue.withValues(alpha: 0.2)],
           ),
         ),
         child: SafeArea(
@@ -477,7 +477,7 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
                   color: AppColors.white,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
+                      color: Colors.black.withValues(alpha: 0.08),
                       blurRadius: 20,
                       offset: const Offset(0, 4),
                     ),
@@ -534,7 +534,7 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
                                       shape: BoxShape.circle,
                                       boxShadow: [
                                         BoxShadow(
-                                          color: Colors.green.withOpacity(0.3),
+                                          color: Colors.green.withValues(alpha: 0.3),
                                           blurRadius: 12,
                                           offset: const Offset(0, 4),
                                         ),
@@ -577,7 +577,7 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
                                             boxShadow: [
                                               BoxShadow(
                                                 color: AppColors.primaryRed
-                                                    .withOpacity(0.3),
+                                                    .withValues(alpha: 0.3),
                                                 blurRadius: 8,
                                                 offset: const Offset(0, 2),
                                               ),
@@ -610,7 +610,7 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
                                             boxShadow: [
                                               BoxShadow(
                                                 color: AppColors.primaryRed
-                                                    .withOpacity(0.4),
+                                                    .withValues(alpha: 0.4),
                                                 blurRadius: 12,
                                                 offset: const Offset(0, 4),
                                               ),
@@ -856,7 +856,7 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
                             vertical: AppSpacing.sm,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.lightBlue.withOpacity(0.2),
+                            color: AppColors.lightBlue.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(
                               AppBorderRadius.small,
                             ),
@@ -951,7 +951,7 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
                                         ),
                                         boxShadow: [
                                           BoxShadow(
-                                            color: Colors.black.withOpacity(
+                                            color: Colors.black.withValues(alpha:
                                               0.05,
                                             ),
                                             blurRadius: 8,
@@ -1031,7 +1031,7 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
                                         ),
                                         boxShadow: [
                                           BoxShadow(
-                                            color: Colors.black.withOpacity(
+                                            color: Colors.black.withValues(alpha:
                                               0.05,
                                             ),
                                             blurRadius: 8,

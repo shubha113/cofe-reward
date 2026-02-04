@@ -1,6 +1,7 @@
 import 'package:cofe_reward/screens/tool_kit_screen.dart';
 import 'package:flutter/material.dart';
 import '../constants/app_constants.dart';
+import 'package:cofe_reward/screens/my_claim_device_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -18,13 +19,13 @@ class _HomeScreenState extends State<HomeScreen> {
       'color': const Color(0xFFE01C08),
     },
     {
-      'icon': Icons.store_outlined,
-      'label': 'Rewards Mall',
+      'icon': Icons.assignment_turned_in_outlined,
+      'label': 'My Claims',
       'color': const Color(0xFFE01C08),
     },
     {
-      'icon': Icons.card_membership_outlined,
-      'label': 'Club',
+      'icon': Icons.store_outlined,
+      'label': 'Rewards Mall',
       'color': const Color(0xFFE01C08),
     },
     {
@@ -340,11 +341,20 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildSmartNavItem(Map<String, dynamic> item) {
     return InkWell(
       onTap: () {
-        if (item['label'] == 'Tool Kit') {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const ToolKitScreen()),
-          );
+        switch (item['label']) {
+          case 'Tool Kit':
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ToolKitScreen()),
+            );
+            break;
+
+          case 'My Claims':
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const MyClaimsScreen()),
+            );
+            break;
         }
       },
       child: Column(

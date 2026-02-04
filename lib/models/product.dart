@@ -1,4 +1,3 @@
-// Product Model
 class Product {
   final int id;
   final String name;
@@ -88,16 +87,23 @@ class ProductImage {
 // Product Attribute Model
 class ProductAttribute {
   final int id;
-  final String name;
+  final String? group;
+  final String attributeKey;
   final String value;
 
-  ProductAttribute({required this.id, required this.name, required this.value});
+  ProductAttribute({
+    required this.id,
+    this.group,
+    required this.attributeKey,
+    required this.value,
+  });
 
   factory ProductAttribute.fromJson(Map<String, dynamic> json) {
     return ProductAttribute(
       id: json['id'] ?? 0,
-      name: json['name'] ?? 'Unknown',
-      value: json['value'] ?? '',
+      group: json['group']?.toString(),
+      attributeKey: (json['key'] ?? 'Unknown').toString(),
+      value: (json['value'] ?? '').toString(),
     );
   }
 }

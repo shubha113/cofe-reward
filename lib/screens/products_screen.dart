@@ -235,7 +235,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
+              color: Colors.black.withValues(alpha: 0.08),
               blurRadius: 14,
               offset: const Offset(0, 6),
             ),
@@ -306,7 +306,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
                 boxShadow: isSelected
                     ? [
                         BoxShadow(
-                          color: AppColors.primaryRed.withOpacity(0.3),
+                          color: AppColors.primaryRed.withValues(alpha: 0.3),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
@@ -592,13 +592,13 @@ class _ProductsScreenState extends State<ProductsScreen> {
                 height: 70,
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: AppColors.primaryRed.withOpacity(0.1),
+                  color: AppColors.primaryRed.withValues(alpha: 0.1),
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(AppBorderRadius.medium),
                     topRight: Radius.circular(AppBorderRadius.medium),
                   ),
                   border: Border.all(
-                    color: AppColors.primaryRed.withOpacity(0.3),
+                    color: AppColors.primaryRed.withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
@@ -735,7 +735,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
             border: Border.all(color: AppColors.borderGrey),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -814,8 +814,8 @@ class _ProductsScreenState extends State<ProductsScreen> {
                       ),
                       decoration: BoxDecoration(
                         color: product.isActive
-                            ? Colors.green.withOpacity(0.1)
-                            : Colors.grey.withOpacity(0.1),
+                            ? Colors.green.withValues(alpha: 0.1)
+                            : Colors.grey.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(

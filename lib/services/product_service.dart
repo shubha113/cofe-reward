@@ -7,7 +7,10 @@ class ProductService {
   final ApiClient _apiClient = ApiClient();
 
   // Get all products with pagination
-  Future<PaginatedProducts> getAllProducts({int page = 1, int perPage = 12}) async {
+  Future<PaginatedProducts> getAllProducts({
+    int page = 1,
+    int perPage = 12,
+  }) async {
     try {
       final response = await _apiClient.get(
         '${ApiConfig.products}?page=$page&per_page=$perPage',
@@ -36,7 +39,7 @@ class ProductService {
     }
   }
 
-  // Get product by ID (using ID instead of slug)
+  // Get product by ID
   Future<Product> getProductById(int id) async {
     try {
       final response = await _apiClient.get(ApiConfig.productById(id));
@@ -59,6 +62,7 @@ class ProductService {
       );
 
       final data = response['data'];
+
       return {
         'mainCategory': MainCategory.fromJson(data['mainCategory']),
         'products': PaginatedProducts.fromJson(data['products']),

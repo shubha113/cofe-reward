@@ -13,8 +13,12 @@ class SignInScreen extends StatefulWidget {
 
 class _SignInScreenState extends State<SignInScreen>
     with SingleTickerProviderStateMixin {
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _otpController = TextEditingController();
+
+  bool _otpSent = false;
+  bool _isSendingOtp = false;
+
   final AuthService _authService = AuthService();
   bool _obscurePassword = true;
   bool _isLoading = false;
@@ -35,73 +39,71 @@ class _SignInScreenState extends State<SignInScreen>
   }
 
   @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    _animationController.dispose();
-    super.dispose();
+  void _showError(String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(msg), backgroundColor: AppColors.primaryRed),
+    );
+  }
+
+  Future<void> _handleSendOtp() async {
+    if (_phoneController.text.length != 10) {
+      _showError('Enter valid 10-digit phone number');
+      return;
+    }
+
+    setState(() => _isSendingOtp = true);
+
+    try {
+      await _authService.sendLoginOtp(phone: _phoneController.text.trim());
+
+      setState(() => _otpSent = true);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('OTP sent successfully'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      _showError(e.toString());
+    } finally {
+      setState(() => _isSendingOtp = false);
+    }
   }
 
   Future<void> _handleLogin() async {
-    // Validate inputs
-    if (_emailController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter your email'),
-          backgroundColor: AppColors.primaryRed,
-        ),
-      );
+    if (_phoneController.text.length != 10) {
+      _showError('Enter valid phone number');
       return;
     }
 
-    if (_passwordController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter your password'),
-          backgroundColor: AppColors.primaryRed,
-        ),
-      );
+    if (_otpController.text.length != 6) {
+      _showError('Enter valid OTP');
       return;
     }
 
-    setState(() {
-      _isLoading = true;
-    });
+    setState(() => _isLoading = true);
 
     try {
-      final response = await _authService.login(
-        email: _emailController.text.trim(),
-        password: _passwordController.text,
+      final response = await _authService.loginWithOtp(
+        phone: _phoneController.text.trim(),
+        otp: _otpController.text.trim(),
       );
 
       if (!mounted) return;
 
-      // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(response['message'] ?? 'Login successful!'),
+          content: Text(response['message'] ?? 'Login successful'),
           backgroundColor: Colors.green,
         ),
       );
 
-      // Navigate to home
       Navigator.pushReplacementNamed(context, '/');
     } catch (e) {
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.toString()),
-          backgroundColor: AppColors.primaryRed,
-          duration: const Duration(seconds: 3),
-        ),
-      );
+      _showError(e.toString());
     } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+      setState(() => _isLoading = false);
     }
   }
 
@@ -113,7 +115,7 @@ class _SignInScreenState extends State<SignInScreen>
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [AppColors.white, AppColors.lightBlue.withOpacity(0.3)],
+            colors: [AppColors.white, AppColors.lightBlue.withValues(alpha: 0.3)],
           ),
         ),
         child: SafeArea(
@@ -153,7 +155,7 @@ class _SignInScreenState extends State<SignInScreen>
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.primaryRed.withOpacity(0.3),
+                            color: AppColors.primaryRed.withValues(alpha: 0.3),
                             blurRadius: 20,
                             offset: const Offset(0, 10),
                           ),
@@ -170,7 +172,7 @@ class _SignInScreenState extends State<SignInScreen>
                               height: 120,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: Colors.white.withOpacity(0.1),
+                                color: Colors.white.withValues(alpha: 0.1),
                               ),
                             ),
                           ),
@@ -182,7 +184,7 @@ class _SignInScreenState extends State<SignInScreen>
                               height: 80,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: Colors.white.withOpacity(0.1),
+                                color: Colors.white.withValues(alpha: 0.1),
                               ),
                             ),
                           ),
@@ -193,17 +195,15 @@ class _SignInScreenState extends State<SignInScreen>
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Container(
-                                  width: 100, // Slightly larger for an image
+                                  width: 100,
                                   height: 100,
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.2),
+                                    color: Colors.white.withValues(alpha: 0.2),
                                     shape: BoxShape.circle,
                                   ),
                                   child: ClipOval(
                                     child: Padding(
-                                      padding: const EdgeInsets.all(
-                                        15.0,
-                                      ),
+                                      padding: const EdgeInsets.all(15.0),
                                       child: Image.asset(
                                         'assets/images/cofee.png',
                                         fit: BoxFit.contain,
@@ -228,9 +228,9 @@ class _SignInScreenState extends State<SignInScreen>
                     ),
                     const SizedBox(height: AppSpacing.xxl),
 
-                    // Email Field
+                    // Phone field
                     Text(
-                      'Email Address',
+                      'Phone Number',
                       style: AppTextStyles.inputLabel.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
@@ -244,21 +244,21 @@ class _SignInScreenState extends State<SignInScreen>
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
+                            color: Colors.black.withValues(alpha: 0.05),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
                         ],
                       ),
                       child: TextField(
-                        controller: _emailController,
-                        keyboardType: TextInputType.emailAddress,
+                        controller: _phoneController,
+                        keyboardType: TextInputType.phone,
+                        maxLength: 10,
                         style: AppTextStyles.inputText,
                         decoration: InputDecoration(
-                          hintText: 'Enter your email',
-                          hintStyle: AppTextStyles.inputHint,
+                          hintText: 'Enter phone number',
                           prefixIcon: const Icon(
-                            Icons.email_outlined,
+                            Icons.phone,
                             color: AppColors.primaryRed,
                           ),
                           border: OutlineInputBorder(
@@ -269,196 +269,84 @@ class _SignInScreenState extends State<SignInScreen>
                           ),
                           filled: true,
                           fillColor: AppColors.white,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: AppSpacing.md,
-                            vertical: AppSpacing.md,
-                          ),
+                          counterText: '',
                         ),
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.lg),
 
-                    // Password Field
-                    Text(
-                      'Password',
-                      style: AppTextStyles.inputLabel.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: AppColors.white,
-                        borderRadius: BorderRadius.circular(
-                          AppBorderRadius.medium,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: TextField(
-                        controller: _passwordController,
-                        obscureText: _obscurePassword,
-                        style: AppTextStyles.inputText,
-                        decoration: InputDecoration(
-                          hintText: 'Enter your password',
-                          hintStyle: AppTextStyles.inputHint,
-                          prefixIcon: const Icon(
-                            Icons.lock_outline,
-                            color: AppColors.primaryRed,
-                          ),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _obscurePassword
-                                  ? Icons.visibility_outlined
-                                  : Icons.visibility_off_outlined,
-                              color: AppColors.greyText,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _obscurePassword = !_obscurePassword;
-                              });
-                            },
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(
-                              AppBorderRadius.medium,
-                            ),
-                            borderSide: BorderSide.none,
-                          ),
-                          filled: true,
-                          fillColor: AppColors.white,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: AppSpacing.md,
-                            vertical: AppSpacing.md,
-                          ),
-                        ),
-                      ),
-                    ),
                     const SizedBox(height: AppSpacing.md),
 
-                    // Forgot Password
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton(
-                        onPressed: () {},
-                        child: Text(
-                          'Forgot Password?',
-                          style: AppTextStyles.linkText.copyWith(
-                            color: AppColors.primaryRed,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-
-                    // Sign In Button
+                    // Send OTP button
                     CustomButton(
-                      text: _isLoading ? 'Signing in...' : 'Sign In',
-                      onPressed: _handleLogin,
-                      isEnabled: !_isLoading,
-                      icon: Icons.arrow_forward,
+                      text: _isSendingOtp
+                          ? 'Sending OTP...'
+                          : (_otpSent ? 'OTP Sent' : 'Send OTP'),
+                      onPressed: () {
+                        if (!_otpSent && !_isSendingOtp) {
+                          _handleSendOtp();
+                        }
+                      },
+                      isEnabled: !_otpSent && !_isSendingOtp,
+                      icon: Icons.sms,
                     ),
-                    const SizedBox(height: AppSpacing.lg),
 
-                    // Divider with OR
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Container(
-                            height: 1,
-                            color: AppColors.borderGrey,
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: AppSpacing.md,
-                          ),
-                          child: Text(
-                            'OR',
-                            style: AppTextStyles.bodySmall.copyWith(
-                              color: AppColors.greyText,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: Container(
-                            height: 1,
-                            color: AppColors.borderGrey,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
+                    if (_otpSent) ...[
+                      const SizedBox(height: AppSpacing.lg),
 
-                    // Sign Up Card
-                    Container(
-                      padding: const EdgeInsets.all(AppSpacing.lg),
-                      decoration: BoxDecoration(
-                        color: AppColors.white,
-                        borderRadius: BorderRadius.circular(
-                          AppBorderRadius.medium,
-                        ),
-                        border: Border.all(
-                          color: AppColors.borderGrey,
-                          width: 1,
+                      Text(
+                        'OTP',
+                        style: AppTextStyles.inputLabel.copyWith(
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'New Here?',
-                                  style: AppTextStyles.bodyMedium.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                const Text(
-                                  'Create an account to get started',
-                                  style: AppTextStyles.bodySmall,
-                                ),
-                              ],
-                            ),
+                      const SizedBox(height: AppSpacing.sm),
+
+                      Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.white,
+                          borderRadius: BorderRadius.circular(
+                            AppBorderRadius.medium,
                           ),
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const SelectProviderTypeScreen(),
-                                ),
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primaryRed,
-                              foregroundColor: AppColors.white,
-                              elevation: 0,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: AppSpacing.lg,
-                                vertical: AppSpacing.md,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(
-                                  AppBorderRadius.small,
-                                ),
-                              ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
                             ),
-                            child: const Text('Sign Up'),
+                          ],
+                        ),
+                        child: TextField(
+                          controller: _otpController,
+                          keyboardType: TextInputType.number,
+                          maxLength: 6,
+                          style: AppTextStyles.inputText,
+                          decoration: InputDecoration(
+                            hintText: 'Enter OTP',
+                            prefixIcon: const Icon(
+                              Icons.lock,
+                              color: AppColors.primaryRed,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(
+                                AppBorderRadius.medium,
+                              ),
+                              borderSide: BorderSide.none,
+                            ),
+                            filled: true,
+                            fillColor: AppColors.white,
+                            counterText: '',
                           ),
-                        ],
+                        ),
                       ),
-                    ),
+                      const SizedBox(height: AppSpacing.lg),
+
+                      CustomButton(
+                        text: _isLoading ? 'Verifying...' : 'Login',
+                        onPressed: () => _handleLogin(),
+                        isEnabled: !_isLoading,
+                        icon: Icons.login,
+                      ),
+                    ],
                   ],
                 ),
               ),

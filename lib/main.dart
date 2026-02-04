@@ -1,4 +1,5 @@
 import 'package:cofe_reward/screens/main_naviagtion_screen.dart';
+import 'package:cofe_reward/screens/my_claim_device_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'constants/app_constants.dart';
@@ -95,6 +96,7 @@ class MyApp extends StatelessWidget {
         '/sign-in': (context) => const SignInScreen(),
         '/select-provider': (context) => const SelectProviderTypeScreen(),
         '/main': (context) => const MainNavigationScreen(),
+        '/my-claims': (context) => const MyClaimsScreen(),
       },
       // Handle routes with arguments
       onGenerateRoute: (settings) {

@@ -85,7 +85,7 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
         color: AppColors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -104,7 +104,7 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
           Container(
             padding: const EdgeInsets.all(AppSpacing.sm),
             decoration: BoxDecoration(
-              color: AppColors.primaryRed.withOpacity(0.1),
+              color: AppColors.primaryRed.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(AppBorderRadius.small),
             ),
           ),
@@ -259,7 +259,7 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
             border: Border.all(color: AppColors.borderGrey),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -285,17 +285,17 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
                               topLeft: Radius.circular(AppBorderRadius.medium),
                               topRight: Radius.circular(AppBorderRadius.medium),
                             ),
-                      child: Image.network(
-                        '${ApiConfig.storageUrl}${product.imageUrl}',
-                        fit: BoxFit.contain,
-                        errorBuilder: (context, error, stackTrace) {
-                          return const Icon(
-                            Icons.image_not_supported,
-                            size: 48,
-                            color: AppColors.greyText,
-                          );
-                        },
-                      ),
+                            child: Image.network(
+                              '${ApiConfig.storageUrl}${product.imageUrl}',
+                              fit: BoxFit.contain,
+                              errorBuilder: (context, error, stackTrace) {
+                                return const Icon(
+                                  Icons.image_not_supported,
+                                  size: 48,
+                                  color: AppColors.greyText,
+                                );
+                              },
+                            ),
                           )
                         : const Icon(
                             Icons.inventory_2_outlined,
@@ -355,7 +355,7 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
         color: AppColors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),

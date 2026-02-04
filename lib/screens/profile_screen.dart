@@ -58,7 +58,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Container(
               padding: const EdgeInsets.all(AppSpacing.xl),
               decoration: BoxDecoration(
-                color: AppColors.primaryRed.withOpacity(0.1),
+                color: AppColors.primaryRed.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
@@ -186,7 +186,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         color: AppColors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -245,7 +245,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         borderRadius: BorderRadius.circular(AppBorderRadius.large),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primaryRed.withOpacity(0.3),
+            color: AppColors.primaryRed.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -262,7 +262,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha: 0.1),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -275,10 +275,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
 
-          const SizedBox(width: 20), // Space between Avatar and Details
+          const SizedBox(width: 20),
 
           Expanded(
-            child: Column( // This keeps the text elements stacked vertically
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -295,7 +295,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   _userData?['job_title'] ?? 'Loading...',
                   style: TextStyle(
                     fontSize: 14,
-                    color: AppColors.white.withOpacity(0.9),
+                    color: AppColors.white.withValues(alpha: 0.9),
                     fontWeight: FontWeight.w400,
                   ),
                 ),
@@ -305,9 +305,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: AppColors.white.withOpacity(0.2),
+                    color: AppColors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: AppColors.white.withOpacity(0.4)),
+                    border: Border.all(color: AppColors.white.withValues(alpha: 0.4)),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -342,7 +342,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         borderRadius: BorderRadius.circular(AppBorderRadius.large),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -440,7 +440,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         if (showDivider)
           Divider(
-            color: AppColors.borderGrey.withOpacity(0.5),
+            color: AppColors.borderGrey.withValues(alpha: 0.5),
             height: 1,
           ),
       ],
@@ -456,7 +456,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         borderRadius: BorderRadius.circular(AppBorderRadius.large),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -484,7 +484,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.primaryRed.withOpacity(0.1),
+                  color: AppColors.primaryRed.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
@@ -506,7 +506,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Icon(
                     Icons.favorite_border,
                     size: 60,
-                    color: AppColors.greyText.withOpacity(0.5),
+                    color: AppColors.greyText.withValues(alpha: 0.5),
                   ),
                   const SizedBox(height: AppSpacing.md),
                   Text(
@@ -536,7 +536,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildPointsSection() {
-    // Temporary value – later you can fetch from API
     final int points = _userData?['points'] ?? 0;
 
     return Container(
@@ -551,7 +550,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         borderRadius: BorderRadius.circular(AppBorderRadius.large),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primaryRed.withOpacity(0.3),
+            color: AppColors.primaryRed.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -564,7 +563,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             width: 60,
             height: 60,
             decoration: BoxDecoration(
-              color: AppColors.white.withOpacity(0.2),
+              color: AppColors.white.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
             child: const Icon(
@@ -594,7 +593,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   'Earn rewards for every claim',
                   style: TextStyle(
                     fontSize: 13,
-                    color: AppColors.white.withOpacity(0.9),
+                    color: AppColors.white.withValues(alpha: 0.9),
                   ),
                 ),
               ],
@@ -703,7 +702,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         borderRadius: BorderRadius.circular(AppBorderRadius.large),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -722,7 +721,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             },
           ),
           Divider(
-            color: AppColors.borderGrey.withOpacity(0.5),
+            color: AppColors.borderGrey.withValues(alpha: 0.5),
             height: 1,
             indent: AppSpacing.lg,
             endIndent: AppSpacing.lg,
@@ -738,7 +737,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             },
           ),
           Divider(
-            color: AppColors.borderGrey.withOpacity(0.5),
+            color: AppColors.borderGrey.withValues(alpha: 0.5),
             height: 1,
             indent: AppSpacing.lg,
             endIndent: AppSpacing.lg,
@@ -776,7 +775,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         width: 45,
         height: 45,
         decoration: BoxDecoration(
-          color: (iconColor ?? AppColors.darkText).withOpacity(0.1),
+          color: (iconColor ?? AppColors.darkText).withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Icon(
@@ -819,7 +818,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppColors.primaryRed.withOpacity(0.1),
+                  color: AppColors.primaryRed.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(

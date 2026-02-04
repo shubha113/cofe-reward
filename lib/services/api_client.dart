@@ -25,57 +25,54 @@ class ApiClient {
     try {
       final headers = await _getHeaders();
       final response = await http
-          .get(
-        Uri.parse('${ApiConfig.baseUrl}$endpoint'),
-        headers: headers,
-      )
+          .get(Uri.parse('${ApiConfig.baseUrl}$endpoint'), headers: headers)
           .timeout(ApiConfig.connectionTimeout);
 
       return _handleResponse(response);
     } catch (e) {
-      throw _handleError(e);
+      throw Exception(_handleError(e));
     }
   }
 
   // POST request
   Future<Map<String, dynamic>> post(
-      String endpoint, {
-        Map<String, dynamic>? body,
-      }) async {
+    String endpoint, {
+    Map<String, dynamic>? body,
+  }) async {
     try {
       final headers = await _getHeaders();
       final response = await http
           .post(
-        Uri.parse('${ApiConfig.baseUrl}$endpoint'),
-        headers: headers,
-        body: body != null ? jsonEncode(body) : null,
-      )
+            Uri.parse('${ApiConfig.baseUrl}$endpoint'),
+            headers: headers,
+            body: body != null ? jsonEncode(body) : null,
+          )
           .timeout(ApiConfig.connectionTimeout);
 
       return _handleResponse(response);
     } catch (e) {
-      throw _handleError(e);
+      throw Exception(_handleError(e));
     }
   }
 
   // PUT request
   Future<Map<String, dynamic>> put(
-      String endpoint, {
-        Map<String, dynamic>? body,
-      }) async {
+    String endpoint, {
+    Map<String, dynamic>? body,
+  }) async {
     try {
       final headers = await _getHeaders();
       final response = await http
           .put(
-        Uri.parse('${ApiConfig.baseUrl}$endpoint'),
-        headers: headers,
-        body: body != null ? jsonEncode(body) : null,
-      )
+            Uri.parse('${ApiConfig.baseUrl}$endpoint'),
+            headers: headers,
+            body: body != null ? jsonEncode(body) : null,
+          )
           .timeout(ApiConfig.connectionTimeout);
 
       return _handleResponse(response);
     } catch (e) {
-      throw _handleError(e);
+      throw Exception(_handleError(e));
     }
   }
 
@@ -84,30 +81,37 @@ class ApiClient {
     try {
       final headers = await _getHeaders();
       final response = await http
-          .delete(
-        Uri.parse('${ApiConfig.baseUrl}$endpoint'),
-        headers: headers,
-      )
+          .delete(Uri.parse('${ApiConfig.baseUrl}$endpoint'), headers: headers)
           .timeout(ApiConfig.connectionTimeout);
 
       return _handleResponse(response);
     } catch (e) {
-      throw _handleError(e);
+      throw Exception(_handleError(e));
     }
   }
 
   // Handle response
   Map<String, dynamic> _handleResponse(http.Response response) {
-    final data = jsonDecode(response.body);
+    Map<String, dynamic> data = {};
+
+    try {
+      if (response.body.isNotEmpty) {
+        data = jsonDecode(response.body);
+      }
+    } catch (_) {
+      // ignore JSON parse error
+    }
 
     if (response.statusCode >= 200 && response.statusCode < 300) {
       return data;
-    } else {
-      throw ApiException(
-        message: data['message'] ?? 'Something went wrong',
-        statusCode: response.statusCode,
-      );
     }
+
+    throw ApiException(
+      message: data['message'] ??
+          data['error'] ??
+          'Something went wrong',
+      statusCode: response.statusCode,
+    );
   }
 
   // Handle errors
@@ -129,10 +133,7 @@ class ApiException implements Exception {
   final String message;
   final int statusCode;
 
-  ApiException({
-    required this.message,
-    required this.statusCode,
-  });
+  ApiException({required this.message, required this.statusCode});
 
   @override
   String toString() => message;

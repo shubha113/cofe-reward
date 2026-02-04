@@ -20,7 +20,19 @@ class AuthService {
     }
   }
 
-  // Verify OTP - FIXED: Use 'verification_code' instead of 'otp'
+  //Send OTP for login
+  Future<Map<String, dynamic>> sendLoginOtp({required String phone}) async {
+    try {
+      return await _apiClient.post(
+        ApiConfig.loginSendOtp,
+        body: {'phone': phone},
+      );
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  // Verify OTP
   Future<Map<String, dynamic>> verifyOtp({
     required String phone,
     required String otp,
@@ -28,13 +40,9 @@ class AuthService {
     try {
       final response = await _apiClient.post(
         ApiConfig.verifyOtp,
-        body: {
-          'phone': phone,
-          'verification_code': otp,
-        },
+        body: {'phone': phone, 'verification_code': otp},
       );
 
-      // Note: verifyPhone doesn't return token, only success message
       return response;
     } catch (e) {
       rethrow;
@@ -55,7 +63,7 @@ class AuthService {
     }
   }
 
-  // Register user - FIXED: Match backend field names exactly
+  // Register user
   Future<Map<String, dynamic>> register({
     required String name,
     required String email,
@@ -138,6 +146,33 @@ class AuthService {
     }
   }
 
+  // Login with Phone + OTP
+  Future<Map<String, dynamic>> loginWithOtp({
+    required String phone,
+    required String otp,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConfig.loginOtp,
+        body: {'phone': phone, 'verification_code': otp},
+      );
+
+      // Save token & user
+      if (response['data'] != null) {
+        if (response['data']['token'] != null) {
+          await _storage.saveToken(response['data']['token']);
+        }
+        if (response['data']['user'] != null) {
+          await _storage.saveUser(response['data']['user']);
+        }
+      }
+
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   // Get current user
   Future<Map<String, dynamic>> getCurrentUser() async {
     try {
@@ -157,12 +192,9 @@ class AuthService {
   // Logout
   Future<void> logout() async {
     try {
-      // Call backend logout endpoint
       await _apiClient.post(ApiConfig.logout, body: {});
     } catch (e) {
-      // Continue even if backend call fails
     } finally {
-      // Always clear local storage
       await _storage.clear();
     }
   }
