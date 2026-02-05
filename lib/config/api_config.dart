@@ -1,7 +1,7 @@
 class ApiConfig {
   /// BASE URL
   // The base domain
-  static const String domain = 'http://192.168.0.102:8000';
+  static const String domain = 'https://cofesolutions.cofesolutions.com';
   //http://192.168.0.102:8000
   //https://cofesolutions.cofesolutions.com
 
