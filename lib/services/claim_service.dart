@@ -7,11 +7,9 @@ import 'auth_service.dart';
 class ClaimService {
   final AuthService _authService = AuthService();
 
-  // ─────────────────────────────────────────────
-  // STEP 1: Validate serial numbers → creates batch + pending claims
-  // ─────────────────────────────────────────────
+  // Validate serial numbers
   Future<Map<String, dynamic>> validateSerials({
-    required int productId, // ✅ ADD THIS
+    required int productId,
     required List<String> serialNumbers,
   }) async {
     try {
@@ -26,7 +24,7 @@ class ClaimService {
           'Content-Type': 'application/json',
         },
         body: json.encode({
-          'product_id': productId, // ✅ ADD THIS
+          'product_id': productId,
           'serial_numbers': serialNumbers,
         }),
       );
@@ -37,7 +35,7 @@ class ClaimService {
         return {
           'success': true,
           'batch_id': data['batch_id'],
-          'results': data['results'], // [{serial_number, status, message}]
+          'results': data['results'],
         };
       } else {
         return {
@@ -50,9 +48,7 @@ class ClaimService {
     }
   }
 
-  // ─────────────────────────────────────────────
-  // STEP 2: Upload bill photos for a batch
-  // ─────────────────────────────────────────────
+  // Upload bill photos
   Future<Map<String, dynamic>> uploadDocuments({
     required int batchId,
     required List<File> photos,
@@ -69,13 +65,9 @@ class ClaimService {
       request.headers['Authorization'] = 'Bearer $token';
       request.headers['Accept'] = 'application/json';
 
-      // Add all photos as documents[]
       for (int i = 0; i < photos.length; i++) {
         request.files.add(
-          await http.MultipartFile.fromPath(
-            'documents[]', // ✅ FIXED - Laravel expects array notation
-            photos[i].path,
-          ),
+          await http.MultipartFile.fromPath('documents[]', photos[i].path),
         );
       }
 
@@ -99,9 +91,72 @@ class ClaimService {
     }
   }
 
-  // ─────────────────────────────────────────────
-  // STEP 3: Submit a batch for review
-  // ─────────────────────────────────────────────
+  // Upload installation photos with location
+  Future<Map<String, dynamic>> uploadInstallationPhotos({
+    required List<Map<String, dynamic>> photos,
+  }) async {
+    try {
+      final token = await _authService.getToken();
+      if (token == null) throw Exception('Not authenticated');
+
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse('${ApiConfig.baseUrl}${ApiConfig.claimInstallationPhotos}'),
+      );
+
+      request.headers['Authorization'] = 'Bearer $token';
+      request.headers['Accept'] = 'application/json';
+
+      // Add each photo with its location data
+      for (int i = 0; i < photos.length; i++) {
+        final photoData = photos[i];
+
+        // Add claim_id
+        request.fields['photos[$i][claim_id]'] = photoData['claim_id']
+            .toString();
+
+        // Add location data
+        if (photoData['latitude'] != null) {
+          request.fields['photos[$i][latitude]'] = photoData['latitude']
+              .toString();
+        }
+        if (photoData['longitude'] != null) {
+          request.fields['photos[$i][longitude]'] = photoData['longitude']
+              .toString();
+        }
+
+        // Add photo file
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'photos[$i][photo]',
+            photoData['photo'].path,
+          ),
+        );
+      }
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+      final data = json.decode(response.body);
+
+      if (response.statusCode == 200 && data['success'] == true) {
+        return {
+          'success': true,
+          'message':
+              data['message'] ?? 'Installation photos uploaded successfully',
+          'data': data['data'],
+        };
+      } else {
+        return {
+          'success': false,
+          'message': data['message'] ?? 'Upload failed',
+        };
+      }
+    } catch (e) {
+      return {'success': false, 'message': 'Network error: ${e.toString()}'};
+    }
+  }
+
+  // Submit batch
   Future<Map<String, dynamic>> submitBatch({required int batchId}) async {
     try {
       final token = await _authService.getToken();
@@ -134,9 +189,7 @@ class ClaimService {
     }
   }
 
-  // ─────────────────────────────────────────────
-  // FETCH: Get all user's claimed devices with status
-  // ─────────────────────────────────────────────
+  // Get all user's claims
   Future<Map<String, dynamic>> getMyBatches() async {
     try {
       final token = await _authService.getToken();
@@ -149,6 +202,13 @@ class ClaimService {
           'Accept': 'application/json',
         },
       );
+
+      if (response.statusCode == 401) {
+        return {
+          'success': false,
+          'message': 'Unauthorized. Please login again.',
+        };
+      }
 
       final data = json.decode(response.body);
 
