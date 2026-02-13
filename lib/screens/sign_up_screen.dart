@@ -1,4 +1,4 @@
-import 'package:cofe_reward/screens/sign_up2_screen.dart';
+import 'package:cofeReward/screens/sign_up2_screen.dart';
 import 'package:flutter/material.dart';
 import '../constants/app_constants.dart';
 import '../models/service_provider.dart';

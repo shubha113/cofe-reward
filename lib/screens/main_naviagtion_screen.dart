@@ -1,3 +1,4 @@
+import 'package:cofeReward/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import '../constants/app_constants.dart';
 import 'home_screen.dart';
@@ -14,11 +15,11 @@ class MainNavigationScreen extends StatefulWidget {
 
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _currentIndex = 0;
+  final AuthService _authService = AuthService();
 
   final List<Widget> _screens = [
     const HomeScreen(),
     const ProductsScreen(),
-    const SizedBox.shrink(),
     const SupportScreen(),
     const ProfileScreen(),
   ];
@@ -26,13 +27,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _screens,
-      ),
+      body: IndexedStack(index: _currentIndex, children: _screens),
       bottomNavigationBar: _buildBottomNavigationBar(),
-      floatingActionButton: _buildFloatingActionButton(),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 
@@ -50,14 +46,21 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       ),
       child: BottomNavigationBar(
         currentIndex: _currentIndex,
-        onTap: (index) {
-          // Skip index 2 (center FAB space)
-          if (index == 2) return;
+
+        onTap: (index) async {
+          if (index == 3) {
+            final isLoggedIn = await _authService.isLoggedIn();
+            if (!isLoggedIn) {
+              Navigator.pushNamed(context, '/sign-in');
+              return;
+            }
+          }
 
           setState(() {
             _currentIndex = index;
           });
         },
+
         type: BottomNavigationBarType.fixed,
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -79,10 +82,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             label: 'Products',
           ),
           BottomNavigationBarItem(
-            icon: SizedBox(width: 48), // Space for FAB
-            label: '',
-          ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.support_agent_outlined),
             activeIcon: Icon(Icons.support_agent),
             label: 'Support',
@@ -93,46 +92,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             label: 'Profile',
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildFloatingActionButton() {
-    return Container(
-      width: 64,
-      height: 64,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: const LinearGradient(
-          colors: [AppColors.lightRed, AppColors.primaryRed],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primaryRed.withValues(alpha: 0.4),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: FloatingActionButton(
-        onPressed: () {
-          // Handle QR Scanner action
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('QR Scanner opened!'),
-              duration: Duration(seconds: 1),
-            ),
-          );
-        },
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        child: const Icon(
-          Icons.qr_code_scanner,
-          size: 30,
-          color: AppColors.white,
-        ),
       ),
     );
   }

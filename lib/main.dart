@@ -1,5 +1,5 @@
-import 'package:cofe_reward/screens/main_naviagtion_screen.dart';
-import 'package:cofe_reward/screens/my_claim_device_screen.dart';
+import 'package:cofeReward/screens/main_naviagtion_screen.dart';
+import 'package:cofeReward/screens/my_claim_device_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'constants/app_constants.dart';
@@ -58,10 +58,7 @@ class MyApp extends StatelessWidget {
             borderRadius: BorderRadius.circular(AppBorderRadius.medium),
           ),
           focusedBorder: OutlineInputBorder(
-            borderSide: const BorderSide(
-              color: AppColors.primaryRed,
-              width: 2,
-            ),
+            borderSide: const BorderSide(color: AppColors.primaryRed, width: 2),
             borderRadius: BorderRadius.circular(AppBorderRadius.medium),
           ),
           hintStyle: AppTextStyles.inputHint,

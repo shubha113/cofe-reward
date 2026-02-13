@@ -112,7 +112,10 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [AppColors.white, AppColors.lightBlue.withValues(alpha: 0.2)],
+            colors: [
+              AppColors.white,
+              AppColors.lightBlue.withValues(alpha: 0.2),
+            ],
           ),
         ),
         child: SafeArea(

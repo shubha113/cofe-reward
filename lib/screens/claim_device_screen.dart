@@ -143,13 +143,18 @@ class _ClaimDevicesScreenState extends State<ClaimDevicesScreen> {
       final allValid = statuses.values.every((s) => s == 'valid');
       if (allValid) {
         _showSnack(
-          'All ${serials.length} serial number(s) are valid!',
+          '✓ All ${serials.length} device(s) successfully claimed!',
           isSuccess: true,
         );
 
         Future.delayed(const Duration(milliseconds: 1500), () {
           if (mounted) {
-            Navigator.pushReplacementNamed(context, '/my-claims');
+            Navigator.pushReplacementNamed(
+              context,
+              '/my-claims',
+            ).then((_) {
+              Navigator.pop(context);
+            });
           }
         });
       } else {

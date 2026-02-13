@@ -1,7 +1,7 @@
 class ApiConfig {
   /// BASE URL
   // The base domain
-  static const String domain = 'https://cofesolutions.cofesolutions.com';
+  static const String domain = 'http://192.168.0.102:8000';
   //http://192.168.0.102:8000
   //https://cofesolutions.cofesolutions.com
 
@@ -25,9 +25,16 @@ class ApiConfig {
   /// DEVICE CLAIM ENDPOINTS
   static const String claimValidate = '/device/claim/validate';
   static const String claimMyClaims = '/device/claim/my-claims';
-  static String claimDocuments(int batchId) => '/device/claim/$batchId/documents';
+  static String claimDocuments(int batchId) =>
+      '/device/claim/$batchId/documents';
   static String claimSubmit(int batchId) => '/device/claim/$batchId/submit';
-  static const String claimInstallationPhotos = '/device/claim/installation-photos';
+  static const String claimInstallationPhotos =
+      '/device/claim/installation-photos';
+
+  /// REWARD ENDPOINTS
+  static const String rewardsAvailable = '/rewards/available';
+  static const String rewardsRedeem = '/rewards/redeem';
+  static const String rewardsHistory = '/rewards/history';
 
   /// CATEGORY ENDPOINTS
   static const String categories = '/categories';

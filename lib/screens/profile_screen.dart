@@ -1,7 +1,8 @@
-import 'package:cofe_reward/services/user_service.dart';
+import 'package:cofeReward/services/user_service.dart';
 import 'package:flutter/material.dart';
 import '../constants/app_constants.dart';
 import '../services/auth_service.dart';
+import 'edit_profile_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -13,6 +14,9 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   final AuthService _authService = AuthService();
   final ProfileService _profileService = ProfileService();
+  Future<void> _handleRefresh() async {
+    await _loadProfileData();
+  }
 
   bool _isLoading = true;
   Map<String, dynamic>? _userData;
@@ -46,64 +50,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-
-  //Guest view
-  Widget _buildGuestView() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.xl),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(AppSpacing.xl),
-              decoration: BoxDecoration(
-                color: AppColors.primaryRed.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.account_circle_outlined,
-                size: 80,
-                color: AppColors.primaryRed,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.xl),
-            Text(
-              "Unlock Your Rewards",
-              style: AppTextStyles.header2.copyWith(color: AppColors.darkText),
-            ),
-            const SizedBox(height: AppSpacing.md),
-            Text(
-              "Sign in to track your favorites, manage your account, and access exclusive partner tools.",
-              textAlign: TextAlign.center,
-              style: AppTextStyles.bodyMedium.copyWith(color: AppColors.greyText),
-            ),
-            const SizedBox(height: AppSpacing.xxl),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () => Navigator.pushNamed(context, '/sign-in'),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
-                ),
-                child: const Text("Sign In / Sign Up"),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Future<void> _handleLogout() async {
     // Show loading
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) => const Center(
-        child: CircularProgressIndicator(
-          color: AppColors.primaryRed,
-        ),
+        child: CircularProgressIndicator(color: AppColors.primaryRed),
       ),
     );
 
@@ -112,12 +65,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       if (!mounted) return;
 
-      Navigator.of(context).pop(); // Close loading
-      Navigator.pushNamedAndRemoveUntil(
-        context,
-        '/',
-            (route) => false,
-      );
+      Navigator.of(context).pop();
+      Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
     } catch (e) {
       if (!mounted) return;
 
@@ -137,33 +86,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
       backgroundColor: AppColors.greyBackground,
       body: SafeArea(
         child: _isLoading
-            ? const Center(child: CircularProgressIndicator(color: AppColors.primaryRed))
-            : (_userData == null)
-            ? _buildGuestView()
+            ? const Center(
+                child: CircularProgressIndicator(color: AppColors.primaryRed),
+              )
             : Column(
-          children: [
-            _buildTopBar(),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    _buildProfileHeader(),
-                    const SizedBox(height: AppSpacing.lg),
-                    _buildUserDetailsCard(),
-                    const SizedBox(height: AppSpacing.lg),
-                    _buildFavoritesSection(),
-                    const SizedBox(height: AppSpacing.lg),
-                    _buildPointsSection(),
-                    const SizedBox(height: AppSpacing.lg),
-
-                    _buildAccountActions(),
-                    const SizedBox(height: AppSpacing.xl),
-                  ],
-                ),
+                children: [
+                  Expanded(
+                    child: RefreshIndicator(
+                      color: AppColors.primaryRed,
+                      onRefresh: _handleRefresh,
+                      child: SingleChildScrollView(
+                        physics:
+                            const AlwaysScrollableScrollPhysics(), // IMPORTANT
+                        child: Column(
+                          children: [
+                            _buildProfileHeader(),
+                            const SizedBox(height: AppSpacing.lg),
+                            _buildUserDetailsCard(),
+                            const SizedBox(height: AppSpacing.lg),
+                            _buildFavoritesSection(),
+                            const SizedBox(height: AppSpacing.lg),
+                            _buildAccountActions(),
+                            const SizedBox(height: AppSpacing.xl),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -171,71 +122,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String _formatDate(String dateStr) {
     try {
       final date = DateTime.parse(dateStr);
-      final months = ['January', 'February', 'March', 'April', 'May', 'June',
-        'July', 'August', 'September', 'October', 'November', 'December'];
+      final months = [
+        'January',
+        'February',
+        'March',
+        'April',
+        'May',
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+        'December',
+      ];
       return '${months[date.month - 1]} ${date.year}';
     } catch (e) {
       return dateStr;
     }
   }
 
-  Widget _buildTopBar() {
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          const Icon(
-            Icons.person,
-            color: AppColors.primaryRed,
-            size: 28,
-          ),
-          const SizedBox(width: AppSpacing.md),
-          Text(
-            'My Profile',
-            style: AppTextStyles.header2.copyWith(fontSize: 24),
-          ),
-          const Spacer(),
-          IconButton(
-            onPressed: () {
-              // Navigate to edit profile
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Edit profile coming soon!'),
-                ),
-              );
-            },
-            icon: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: AppColors.greyBackground,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(
-                Icons.edit,
-                color: AppColors.darkText,
-                size: 20,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildProfileHeader() {
+    final int points = _userData?['reward_points'] ?? 0;
+
     return Container(
       margin: const EdgeInsets.all(AppSpacing.lg),
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.xl),
+      padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [AppColors.lightRed, AppColors.primaryRed],
@@ -251,78 +163,130 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ],
       ),
-      child: Row( // This puts Avatar and Text side-by-side
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              color: AppColors.white,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.1),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
+          // LEFT SECTION → Avatar + Name info
+          Expanded(
+            child: Row(
+              children: [
+                // Avatar
+                Container(
+                  width: 70,
+                  height: 70,
+                  decoration: BoxDecoration(
+                    color: AppColors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.15),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.person,
+                    size: 36,
+                    color: AppColors.primaryRed,
+                  ),
+                ),
+                const SizedBox(width: 14),
+
+                // Name + Job + Badge
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        _userData?['name'] ?? '',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        _userData?['job_title'] ?? '',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: AppColors.white.withValues(alpha: 0.9),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+
+                      // Company type badge
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.white.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: AppColors.white.withValues(alpha: 0.4),
+                          ),
+                        ),
+                        child: Text(
+                          _userData?['company_type']
+                                  ?.toString()
+                                  .toUpperCase() ??
+                              'USER',
+                          style: const TextStyle(
+                            color: AppColors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 10,
+                            letterSpacing: 0.6,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
-            child: const Icon(
-              Icons.person,
-              size: 45,
-              color: AppColors.primaryRed,
-            ),
           ),
 
-          const SizedBox(width: 20),
-
-          Expanded(
+          // RIGHT SECTION → Points
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
+              color: AppColors.white.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: AppColors.white.withValues(alpha: 0.35),
+              ),
+            ),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
               children: [
+                const Icon(
+                  Icons.stars_rounded,
+                  color: AppColors.white,
+                  size: 26,
+                ),
+                const SizedBox(height: 4),
                 Text(
-                  _userData?['name'] ?? 'Loading...',
+                  points.toString(),
                   style: const TextStyle(
-                    fontSize: 22,
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
                     color: AppColors.white,
                   ),
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  _userData?['job_title'] ?? 'Loading...',
+                const Text(
+                  'POINTS',
                   style: TextStyle(
-                    fontSize: 14,
-                    color: AppColors.white.withValues(alpha: 0.9),
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-                const SizedBox(height: 12),
-
-                // Provider Badge
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: AppColors.white.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: AppColors.white.withValues(alpha: 0.4)),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.verified_user, size: 14, color: AppColors.white),
-                      const SizedBox(width: 6),
-                      Text(
-                        _userData?['company_type']?.toString().toUpperCase() ?? 'USER',
-                        style: const TextStyle(
-                          color: AppColors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 10,
-                        ),
-                      ),
-                    ],
+                    fontSize: 9,
+                    letterSpacing: 1.2,
+                    color: AppColors.white,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
@@ -351,9 +315,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Account Information',
-            style: AppTextStyles.header3.copyWith(fontSize: 18),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Account Information',
+                style: AppTextStyles.header3.copyWith(fontSize: 18),
+              ),
+              IconButton(
+                onPressed: _navigateToEditProfile,
+                icon: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryRed.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(
+                    Icons.edit,
+                    color: AppColors.primaryRed,
+                    size: 20,
+                  ),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: AppSpacing.lg),
           _buildDetailRow(
@@ -389,6 +373,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  Future<void> _navigateToEditProfile() async {
+    if (_userData == null) return;
+
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => EditProfileScreen(userData: _userData!),
+      ),
+    );
+
+    // Refresh profile if update was successful
+    if (result == true) {
+      _loadProfileData();
+    }
+  }
+
   Widget _buildDetailRow({
     required IconData icon,
     required String label,
@@ -408,11 +408,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   color: AppColors.greyBackground,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(
-                  icon,
-                  color: AppColors.primaryRed,
-                  size: 20,
-                ),
+                child: Icon(icon, color: AppColors.primaryRed, size: 20),
               ),
               const SizedBox(width: AppSpacing.md),
               Expanded(
@@ -467,11 +463,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         children: [
           Row(
             children: [
-              const Icon(
-                Icons.favorite,
-                color: AppColors.primaryRed,
-                size: 24,
-              ),
+              const Icon(Icons.favorite, color: AppColors.primaryRed, size: 24),
               const SizedBox(width: AppSpacing.sm),
               Text(
                 'My Favorites',
@@ -535,100 +527,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildPointsSection() {
-    final int points = _userData?['points'] ?? 0;
-
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [AppColors.lightRed, AppColors.primaryRed],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(AppBorderRadius.large),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primaryRed.withValues(alpha: 0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          // Icon
-          Container(
-            width: 60,
-            height: 60,
-            decoration: BoxDecoration(
-              color: AppColors.white.withValues(alpha: 0.2),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.stars_rounded,
-              size: 32,
-              color: AppColors.white,
-            ),
-          ),
-
-          const SizedBox(width: AppSpacing.lg),
-
-          // Text
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'My Points',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.white,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Earn rewards for every claim',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: AppColors.white.withValues(alpha: 0.9),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Points value
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                points.toString(),
-                style: const TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.white,
-                ),
-              ),
-              const Text(
-                'POINTS',
-                style: TextStyle(
-                  fontSize: 10,
-                  letterSpacing: 1.2,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.white,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-
   Widget _buildFavoriteItem(Map<String, dynamic> item, int index) {
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.md),
@@ -636,9 +534,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       decoration: BoxDecoration(
         color: AppColors.greyBackground,
         borderRadius: BorderRadius.circular(AppBorderRadius.medium),
-        border: Border.all(
-          color: AppColors.borderGrey,
-        ),
+        border: Border.all(color: AppColors.borderGrey),
       ),
       child: Row(
         children: [
@@ -778,11 +674,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           color: (iconColor ?? AppColors.darkText).withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(10),
         ),
-        child: Icon(
-          icon,
-          color: iconColor ?? AppColors.darkText,
-          size: 24,
-        ),
+        child: Icon(icon, color: iconColor ?? AppColors.darkText, size: 24),
       ),
       title: Text(
         title,
@@ -793,9 +685,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       subtitle: Text(
         subtitle,
-        style: AppTextStyles.bodySmall.copyWith(
-          color: AppColors.greyText,
-        ),
+        style: AppTextStyles.bodySmall.copyWith(color: AppColors.greyText),
       ),
       trailing: Icon(
         Icons.arrow_forward_ios,
@@ -821,10 +711,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   color: AppColors.primaryRed.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
-                  Icons.logout,
-                  color: AppColors.primaryRed,
-                ),
+                child: const Icon(Icons.logout, color: AppColors.primaryRed),
               ),
               const SizedBox(width: AppSpacing.md),
               const Text('Logout'),
@@ -861,69 +748,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 'Logout',
                 style: TextStyle(fontWeight: FontWeight.w600),
               ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _showAboutDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppBorderRadius.large),
-          ),
-          title: Column(
-            children: [
-              Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [AppColors.lightRed, AppColors.primaryRed],
-                  ),
-                  borderRadius: BorderRadius.circular(AppBorderRadius.medium),
-                ),
-                child: const Icon(
-                  Icons.coffee,
-                  size: 40,
-                  color: AppColors.white,
-                ),
-              ),
-              const SizedBox(height: AppSpacing.md),
-              const Text('Cofe Reward'),
-            ],
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Version 1.0.0',
-                style: AppTextStyles.bodyMedium,
-              ),
-              const SizedBox(height: AppSpacing.md),
-              Text(
-                '© 2026 Cofe Technologies',
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: AppColors.greyText,
-                ),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              Text(
-                'Partner Reward Program',
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: AppColors.greyText,
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Close'),
             ),
           ],
         );

@@ -15,7 +15,7 @@
         </intent>
     </queries>
     <application
-        android:label="cofe_rewards"
+        android:label="cofeRewards"
         android:name="${applicationName}"
         android:usesCleartextTraffic="true"
         android:requestLegacyExternalStorage="true"

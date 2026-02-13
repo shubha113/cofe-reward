@@ -8,13 +8,15 @@ class SelectProviderTypeScreen extends StatefulWidget {
   const SelectProviderTypeScreen({Key? key}) : super(key: key);
 
   @override
-  State<SelectProviderTypeScreen> createState() => _SelectProviderTypeScreenState();
+  State<SelectProviderTypeScreen> createState() =>
+      _SelectProviderTypeScreenState();
 }
 
 class _SelectProviderTypeScreenState extends State<SelectProviderTypeScreen>
     with SingleTickerProviderStateMixin {
   String? selectedType;
-  final List<ServiceProviderType> providerTypes = ServiceProviderType.getTypes();
+  final List<ServiceProviderType> providerTypes =
+      ServiceProviderType.getTypes();
   late AnimationController _animationController;
 
   @override
@@ -103,16 +105,17 @@ class _SelectProviderTypeScreenState extends State<SelectProviderTypeScreen>
                   itemBuilder: (context, index) {
                     final provider = providerTypes[index];
                     final isSelected = selectedType == provider.id;
-                    final animation = Tween<double>(begin: 0.0, end: 1.0).animate(
-                      CurvedAnimation(
-                        parent: _animationController,
-                        curve: Interval(
-                          index * 0.1,
-                          1.0,
-                          curve: Curves.easeOut,
-                        ),
-                      ),
-                    );
+                    final animation = Tween<double>(begin: 0.0, end: 1.0)
+                        .animate(
+                          CurvedAnimation(
+                            parent: _animationController,
+                            curve: Interval(
+                              index * 0.1,
+                              1.0,
+                              curve: Curves.easeOut,
+                            ),
+                          ),
+                        );
 
                     return AnimatedBuilder(
                       animation: animation,
@@ -137,16 +140,18 @@ class _SelectProviderTypeScreenState extends State<SelectProviderTypeScreen>
                           decoration: BoxDecoration(
                             gradient: isSelected
                                 ? LinearGradient(
-                              colors: [
-                                AppColors.lightRed.withValues(alpha: 0.1),
-                                AppColors.selectedBackground,
-                              ],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            )
+                                    colors: [
+                                      AppColors.lightRed.withValues(alpha: 0.1),
+                                      AppColors.selectedBackground,
+                                    ],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  )
                                 : null,
                             color: isSelected ? null : AppColors.white,
-                            borderRadius: BorderRadius.circular(AppBorderRadius.large),
+                            borderRadius: BorderRadius.circular(
+                              AppBorderRadius.large,
+                            ),
                             border: Border.all(
                               color: isSelected
                                   ? AppColors.primaryRed
@@ -156,7 +161,9 @@ class _SelectProviderTypeScreenState extends State<SelectProviderTypeScreen>
                             boxShadow: [
                               BoxShadow(
                                 color: isSelected
-                                    ? AppColors.primaryRed.withValues(alpha: 0.2)
+                                    ? AppColors.primaryRed.withValues(
+                                        alpha: 0.2,
+                                      )
                                     : Colors.black.withValues(alpha: 0.05),
                                 blurRadius: isSelected ? 15 : 10,
                                 offset: Offset(0, isSelected ? 6 : 4),
@@ -172,25 +179,30 @@ class _SelectProviderTypeScreenState extends State<SelectProviderTypeScreen>
                                 decoration: BoxDecoration(
                                   gradient: isSelected
                                       ? const LinearGradient(
-                                    colors: [
-                                      AppColors.lightRed,
-                                      AppColors.primaryRed
-                                    ],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  )
+                                          colors: [
+                                            AppColors.lightRed,
+                                            AppColors.primaryRed,
+                                          ],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        )
                                       : LinearGradient(
-                                    colors: [
-                                      AppColors.lightBlue,
-                                      AppColors.lightBlue.withValues(alpha: 0.7),
-                                    ],
+                                          colors: [
+                                            AppColors.lightBlue,
+                                            AppColors.lightBlue.withValues(
+                                              alpha: 0.7,
+                                            ),
+                                          ],
+                                        ),
+                                  borderRadius: BorderRadius.circular(
+                                    AppBorderRadius.medium,
                                   ),
-                                  borderRadius:
-                                  BorderRadius.circular(AppBorderRadius.medium),
                                   boxShadow: [
                                     BoxShadow(
                                       color: isSelected
-                                          ? AppColors.primaryRed.withValues(alpha: 0.3)
+                                          ? AppColors.primaryRed.withValues(
+                                              alpha: 0.3,
+                                            )
                                           : Colors.transparent,
                                       blurRadius: 8,
                                       offset: const Offset(0, 4),
@@ -241,27 +253,27 @@ class _SelectProviderTypeScreenState extends State<SelectProviderTypeScreen>
                                 decoration: BoxDecoration(
                                   gradient: isSelected
                                       ? const LinearGradient(
-                                    colors: [
-                                      AppColors.lightRed,
-                                      AppColors.primaryRed
-                                    ],
-                                  )
+                                          colors: [
+                                            AppColors.lightRed,
+                                            AppColors.primaryRed,
+                                          ],
+                                        )
                                       : null,
                                   color: isSelected ? null : Colors.transparent,
                                   shape: BoxShape.circle,
                                   border: isSelected
                                       ? null
                                       : Border.all(
-                                    color: AppColors.borderGrey,
-                                    width: 2,
-                                  ),
+                                          color: AppColors.borderGrey,
+                                          width: 2,
+                                        ),
                                 ),
                                 child: isSelected
                                     ? const Icon(
-                                  Icons.check,
-                                  color: AppColors.white,
-                                  size: 18,
-                                )
+                                        Icons.check,
+                                        color: AppColors.white,
+                                        size: 18,
+                                      )
                                     : null,
                               ),
                             ],
@@ -285,9 +297,8 @@ class _SelectProviderTypeScreenState extends State<SelectProviderTypeScreen>
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => SignUpScreen(
-                            providerType: selectedType!,
-                          ),
+                          builder: (context) =>
+                              SignUpScreen(providerType: selectedType!),
                         ),
                       );
                     }

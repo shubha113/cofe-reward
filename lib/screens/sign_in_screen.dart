@@ -122,7 +122,10 @@ class _SignInScreenState extends State<SignInScreen>
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [AppColors.white, AppColors.lightBlue.withValues(alpha: 0.3)],
+            colors: [
+              AppColors.white,
+              AppColors.lightBlue.withValues(alpha: 0.3),
+            ],
           ),
         ),
         child: SafeArea(
@@ -149,90 +152,38 @@ class _SignInScreenState extends State<SignInScreen>
                     const SizedBox(height: AppSpacing.xxl),
 
                     // Illustration Card
-                    Container(
-                      height: 220,
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFFFF6B6B), Color(0xFFE01C08)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
+                    Center(
+                      child: Container(
+                        width: 120,
+                        height: 120,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white,
+                          boxShadow: [
+                            // Main shadow (3D depth)
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.15),
+                              blurRadius: 20,
+                              offset: const Offset(0, 10),
+                            ),
+                            // Soft top highlight
+                            BoxShadow(
+                              color: Colors.white.withValues(alpha: 0.8),
+                              blurRadius: 10,
+                              offset: const Offset(-4, -4),
+                            ),
+                          ],
                         ),
-                        borderRadius: BorderRadius.circular(
-                          AppBorderRadius.xlarge,
+                        child: Padding(
+                          padding: const EdgeInsets.all(18),
+                          child: Image.asset(
+                            'assets/images/cofee.png',
+                            fit: BoxFit.contain,
+                          ),
                         ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.primaryRed.withValues(alpha: 0.3),
-                            blurRadius: 20,
-                            offset: const Offset(0, 10),
-                          ),
-                        ],
-                      ),
-                      child: Stack(
-                        children: [
-                          // Decorative circles
-                          Positioned(
-                            right: -30,
-                            top: -30,
-                            child: Container(
-                              width: 120,
-                              height: 120,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.white.withValues(alpha: 0.1),
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            left: -20,
-                            bottom: -20,
-                            child: Container(
-                              width: 80,
-                              height: 80,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.white.withValues(alpha: 0.1),
-                              ),
-                            ),
-                          ),
-                          // Icon
-                          // Image Logo replacement
-                          Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Container(
-                                  width: 100,
-                                  height: 100,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withValues(alpha: 0.2),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: ClipOval(
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(15.0),
-                                      child: Image.asset(
-                                        'assets/images/cofee.png',
-                                        fit: BoxFit.contain,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: AppSpacing.md),
-                                const Text(
-                                  'COFE REWARD',
-                                  style: TextStyle(
-                                    color: AppColors.white,
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
                       ),
                     ),
+
                     const SizedBox(height: AppSpacing.xxl),
 
                     // Phone field

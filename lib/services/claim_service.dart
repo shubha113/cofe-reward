@@ -7,7 +7,7 @@ import 'auth_service.dart';
 class ClaimService {
   final AuthService _authService = AuthService();
 
-  // Validate serial numbers
+  // Validate serial numbers - NOW CLAIMS IMMEDIATELY
   Future<Map<String, dynamic>> validateSerials({
     required int productId,
     required List<String> serialNumbers,
@@ -107,25 +107,21 @@ class ClaimService {
       request.headers['Authorization'] = 'Bearer $token';
       request.headers['Accept'] = 'application/json';
 
-      // Add each photo with its location data
       for (int i = 0; i < photos.length; i++) {
         final photoData = photos[i];
 
-        // Add claim_id
-        request.fields['photos[$i][claim_id]'] = photoData['claim_id']
-            .toString();
+        request.fields['photos[$i][claim_id]'] = photoData['claim_id'].toString();
 
-        // Add location data
         if (photoData['latitude'] != null) {
-          request.fields['photos[$i][latitude]'] = photoData['latitude']
-              .toString();
+          request.fields['photos[$i][latitude]'] = photoData['latitude'].toString();
         }
         if (photoData['longitude'] != null) {
-          request.fields['photos[$i][longitude]'] = photoData['longitude']
-              .toString();
+          request.fields['photos[$i][longitude]'] = photoData['longitude'].toString();
+        }
+        if (photoData['address'] != null) {
+          request.fields['photos[$i][address]'] = photoData['address'].toString();
         }
 
-        // Add photo file
         request.files.add(
           await http.MultipartFile.fromPath(
             'photos[$i][photo]',
@@ -141,8 +137,7 @@ class ClaimService {
       if (response.statusCode == 200 && data['success'] == true) {
         return {
           'success': true,
-          'message':
-              data['message'] ?? 'Installation photos uploaded successfully',
+          'message': data['message'] ?? 'Installation photos uploaded successfully',
           'data': data['data'],
         };
       } else {
@@ -156,7 +151,7 @@ class ClaimService {
     }
   }
 
-  // Submit batch
+  // Submit batch (photos uploaded, finalizing)
   Future<Map<String, dynamic>> submitBatch({required int batchId}) async {
     try {
       final token = await _authService.getToken();
@@ -176,7 +171,7 @@ class ClaimService {
       if (response.statusCode == 200 && data['success'] == true) {
         return {
           'success': true,
-          'message': data['message'] ?? 'Claim submitted for review',
+          'message': data['message'] ?? 'Photos submitted successfully',
         };
       } else {
         return {

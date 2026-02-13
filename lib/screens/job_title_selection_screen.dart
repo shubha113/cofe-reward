@@ -6,7 +6,8 @@ class JobTitleSelectionScreen extends StatefulWidget {
   const JobTitleSelectionScreen({Key? key}) : super(key: key);
 
   @override
-  State<JobTitleSelectionScreen> createState() => _JobTitleSelectionScreenState();
+  State<JobTitleSelectionScreen> createState() =>
+      _JobTitleSelectionScreenState();
 }
 
 class _JobTitleSelectionScreenState extends State<JobTitleSelectionScreen> {
@@ -97,14 +98,16 @@ class _JobTitleSelectionScreenState extends State<JobTitleSelectionScreen> {
                         decoration: BoxDecoration(
                           gradient: isSelected
                               ? LinearGradient(
-                            colors: [
-                              AppColors.lightRed.withValues(alpha: 0.1),
-                              AppColors.selectedBackground,
-                            ],
-                          )
+                                  colors: [
+                                    AppColors.lightRed.withValues(alpha: 0.1),
+                                    AppColors.selectedBackground,
+                                  ],
+                                )
                               : null,
                           color: isSelected ? null : AppColors.white,
-                          borderRadius: BorderRadius.circular(AppBorderRadius.medium),
+                          borderRadius: BorderRadius.circular(
+                            AppBorderRadius.medium,
+                          ),
                           border: Border.all(
                             color: isSelected
                                 ? AppColors.primaryRed
@@ -129,17 +132,19 @@ class _JobTitleSelectionScreenState extends State<JobTitleSelectionScreen> {
                               decoration: BoxDecoration(
                                 gradient: isSelected
                                     ? const LinearGradient(
-                                  colors: [
-                                    AppColors.lightRed,
-                                    AppColors.primaryRed
-                                  ],
-                                )
+                                        colors: [
+                                          AppColors.lightRed,
+                                          AppColors.primaryRed,
+                                        ],
+                                      )
                                     : LinearGradient(
-                                  colors: [
-                                    AppColors.lightBlue,
-                                    AppColors.lightBlue.withValues(alpha: 0.7),
-                                  ],
-                                ),
+                                        colors: [
+                                          AppColors.lightBlue,
+                                          AppColors.lightBlue.withValues(
+                                            alpha: 0.7,
+                                          ),
+                                        ],
+                                      ),
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(
@@ -172,7 +177,7 @@ class _JobTitleSelectionScreenState extends State<JobTitleSelectionScreen> {
                                   gradient: LinearGradient(
                                     colors: [
                                       AppColors.lightRed,
-                                      AppColors.primaryRed
+                                      AppColors.primaryRed,
                                     ],
                                   ),
                                   shape: BoxShape.circle,

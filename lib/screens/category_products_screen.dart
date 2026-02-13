@@ -1,4 +1,4 @@
-import 'package:cofe_reward/config/api_config.dart';
+import 'package:cofeReward/config/api_config.dart';
 import 'package:flutter/material.dart';
 import '../constants/app_constants.dart';
 import '../services/product_service.dart';

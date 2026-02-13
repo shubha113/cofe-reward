@@ -12,8 +12,8 @@ class ProfileService {
       final response = await _apiClient.get(ApiConfig.profile);
 
       // Update stored user data
-      if (response['user'] != null) {
-        await _storage.saveUser(response['user']);
+      if (response['data'] != null && response['data']['user'] != null) {
+        await _storage.saveUser(response['data']['user']);
       }
 
       return response;
@@ -26,9 +26,10 @@ class ProfileService {
   Future<Map<String, dynamic>> updateProfile({
     String? name,
     String? companyName,
+    String? companyType,
     String? jobTitle,
-    String? locationState,
-    String? locationCity,
+    String? location,
+    String? address,
     String? purchaseLocation,
     String? referrer,
   }) async {
@@ -37,20 +38,18 @@ class ProfileService {
 
       if (name != null) body['name'] = name;
       if (companyName != null) body['company_name'] = companyName;
+      if (companyType != null) body['company_type'] = companyType;
       if (jobTitle != null) body['job_title'] = jobTitle;
-      if (locationState != null) body['location_state'] = locationState;
-      if (locationCity != null) body['location_city'] = locationCity;
+      if (location != null) body['location'] = location;
+      if (address != null) body['address'] = address;
       if (purchaseLocation != null) body['purchase_location'] = purchaseLocation;
       if (referrer != null) body['referrer'] = referrer;
 
-      final response = await _apiClient.put(
-        ApiConfig.profile,
-        body: body,
-      );
+      final response = await _apiClient.put(ApiConfig.profile, body: body);
 
       // Update stored user data
-      if (response['user'] != null) {
-        await _storage.saveUser(response['user']);
+      if (response['data'] != null && response['data']['user'] != null) {
+        await _storage.saveUser(response['data']['user']);
       }
 
       return response;

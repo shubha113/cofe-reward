@@ -65,15 +65,9 @@ class SupportScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: AppSpacing.xl),
-                    Text(
-                      'Support Page',
-                      style: AppTextStyles.header2,
-                    ),
+                    Text('Support Page', style: AppTextStyles.header2),
                     const SizedBox(height: AppSpacing.sm),
-                    Text(
-                      'Coming soon...',
-                      style: AppTextStyles.bodyMedium,
-                    ),
+                    Text('Coming soon...', style: AppTextStyles.bodyMedium),
                   ],
                 ),
               ),

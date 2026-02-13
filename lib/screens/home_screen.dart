@@ -1,7 +1,9 @@
-import 'package:cofe_reward/screens/tool_kit_screen.dart';
+import 'package:cofeReward/screens/notification_screen.dart';
+import 'package:cofeReward/screens/reward_mall_screen.dart';
+import 'package:cofeReward/screens/tool_kit_screen.dart';
 import 'package:flutter/material.dart';
 import '../constants/app_constants.dart';
-import 'package:cofe_reward/screens/my_claim_device_screen.dart';
+import 'package:cofeReward/screens/my_claim_device_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -52,7 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            _buildTopAppBar(),
+            _buildFloatingTopHeader(context),
             _buildTopNavigation(),
 
             // Section Title
@@ -235,73 +237,91 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildTopAppBar() {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.lg,
-        vertical: AppSpacing.md,
-      ),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
+  Widget _buildFloatingTopHeader(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        AppSpacing.lg,
+        AppSpacing.lg,
+        AppSpacing.sm,
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Profile Avatar
           Container(
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [AppColors.lightRed, AppColors.primaryRed],
-              ),
               shape: BoxShape.circle,
+              color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.primaryRed.withValues(alpha: 0.3),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
+                  color: Colors.black.withValues(alpha: 0.15),
+                  blurRadius: 10,
+                  offset: const Offset(0, 6),
+                ),
+                BoxShadow(
+                  color: Colors.white.withValues(alpha: 0.8),
+                  blurRadius: 6,
+                  offset: const Offset(-2, -2),
                 ),
               ],
             ),
-            child: const Icon(Icons.person, color: AppColors.white, size: 24),
+            child: Padding(
+              padding: const EdgeInsets.all(6),
+              child: Image.asset(
+                'assets/images/cofee.png',
+                fit: BoxFit.contain,
+              ),
+            ),
           ),
 
-          // Right Icons
-          Row(
-            children: [
-              IconButton(
-                onPressed: () {},
-                icon: Stack(
-                  children: [
-                    const Icon(
-                      Icons.notifications_outlined,
-                      color: AppColors.darkText,
-                      size: 26,
-                    ),
-                    Positioned(
-                      right: 0,
-                      top: 0,
-                      child: Container(
-                        width: 8,
-                        height: 8,
-                        decoration: const BoxDecoration(
-                          color: AppColors.primaryRed,
-                          shape: BoxShape.circle,
-                        ),
+          const Spacer(),
+
+          // Notification Button
+          InkWell(
+            borderRadius: BorderRadius.circular(24),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const NotificationScreen()),
+              );
+            },
+            child: Stack(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.12),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.notifications_outlined,
+                    color: AppColors.darkText,
+                    size: 24,
+                  ),
                 ),
-              ),
-            ],
+                Positioned(
+                  right: 6,
+                  top: 6,
+                  child: Container(
+                    width: 8,
+                    height: 8,
+                    decoration: const BoxDecoration(
+                      color: AppColors.primaryRed,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -353,6 +373,13 @@ class _HomeScreenState extends State<HomeScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const MyClaimsScreen()),
+            );
+            break;
+
+          case 'Rewards Mall':
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const RewardsMallScreen()),
             );
             break;
         }

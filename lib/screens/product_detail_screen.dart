@@ -1,6 +1,5 @@
-import 'package:cofe_reward/config/api_config.dart';
-import 'package:cofe_reward/screens/claim_device_screen.dart';
-import 'package:flutter/foundation.dart';
+import 'package:cofeReward/config/api_config.dart';
+import 'package:cofeReward/screens/claim_device_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:image_picker/image_picker.dart' as img;
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
@@ -163,7 +162,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
     }
 
     final screenHeight = MediaQuery.of(context).size.height;
-    final imageHeight = screenHeight * 0.45;
+    final imageHeight = screenHeight * 0.40;
 
     // Get valid images
     final validImages = _product!.images
@@ -521,7 +520,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: AppColors.borderGrey.withValues(alpha: 0.5)),
+          bottom: BorderSide(
+            color: AppColors.borderGrey.withValues(alpha: 0.5),
+          ),
         ),
       ),
       child: Row(

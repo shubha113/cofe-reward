@@ -39,10 +39,7 @@ class CustomTextField extends StatelessWidget {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-            Text(
-              label,
-              style: AppTextStyles.inputLabel,
-            ),
+            Text(label, style: AppTextStyles.inputLabel),
           ],
         ),
         const SizedBox(height: AppSpacing.sm),
@@ -62,25 +59,26 @@ class CustomTextField extends StatelessWidget {
                 fillColor: AppColors.white,
                 border: UnderlineInputBorder(
                   borderSide: BorderSide(
-                    color: errorText != null ? AppColors.errorRed : AppColors.borderGrey,
+                    color: errorText != null
+                        ? AppColors.errorRed
+                        : AppColors.borderGrey,
                   ),
                 ),
                 enabledBorder: UnderlineInputBorder(
                   borderSide: BorderSide(
-                    color: errorText != null ? AppColors.errorRed : AppColors.borderGrey,
+                    color: errorText != null
+                        ? AppColors.errorRed
+                        : AppColors.borderGrey,
                   ),
                 ),
                 focusedBorder: const UnderlineInputBorder(
-                  borderSide: BorderSide(
-                    color: AppColors.primaryRed,
-                    width: 2,
-                  ),
+                  borderSide: BorderSide(color: AppColors.primaryRed, width: 2),
                 ),
                 suffixIcon: readOnly
                     ? const Icon(
-                  Icons.arrow_drop_down,
-                  color: AppColors.greyText,
-                )
+                        Icons.arrow_drop_down,
+                        color: AppColors.greyText,
+                      )
                     : null,
               ),
             ),
@@ -91,10 +89,7 @@ class CustomTextField extends StatelessWidget {
             padding: const EdgeInsets.only(top: AppSpacing.xs),
             child: Text(
               errorText!,
-              style: const TextStyle(
-                color: AppColors.errorRed,
-                fontSize: 12,
-              ),
+              style: const TextStyle(color: AppColors.errorRed, fontSize: 12),
             ),
           ),
       ],

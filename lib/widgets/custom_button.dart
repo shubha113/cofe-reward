@@ -27,21 +27,21 @@ class CustomButton extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: isEnabled
             ? const LinearGradient(
-          colors: [AppColors.lightRed, AppColors.primaryRed],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        )
+                colors: [AppColors.lightRed, AppColors.primaryRed],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              )
             : null,
         color: isEnabled ? null : AppColors.lightGreyText,
         borderRadius: BorderRadius.circular(AppBorderRadius.medium),
         boxShadow: isEnabled
             ? [
-          BoxShadow(
-            color: AppColors.primaryRed.withValues(alpha: 0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ]
+                BoxShadow(
+                  color: AppColors.primaryRed.withValues(alpha: 0.3),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ]
             : null,
       ),
       child: Material(
@@ -55,17 +55,10 @@ class CustomButton extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  text,
-                  style: AppTextStyles.buttonText,
-                ),
+                Text(text, style: AppTextStyles.buttonText),
                 if (icon != null) ...[
                   const SizedBox(width: AppSpacing.sm),
-                  Icon(
-                    icon,
-                    color: AppColors.white,
-                    size: 20,
-                  ),
+                  Icon(icon, color: AppColors.white, size: 20),
                 ],
               ],
             ),

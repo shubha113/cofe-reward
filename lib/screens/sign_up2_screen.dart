@@ -434,23 +434,21 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
                   ? null
                   : _handleSendOtp,
               style: ElevatedButton.styleFrom(
-                backgroundColor:
-                _isPhoneVerified ? Colors.green : AppColors.primaryRed,
+                backgroundColor: _isPhoneVerified
+                    ? Colors.green
+                    : AppColors.primaryRed,
               ),
               child: _isVerifying
                   ? const SizedBox(
-                height: 18,
-                width: 18,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: Colors.white,
-                ),
-              )
-                  : Text(
-                _isPhoneVerified ? 'Verified' : 'Send OTP',
-              ),
+                      height: 18,
+                      width: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : Text(_isPhoneVerified ? 'Verified' : 'Send OTP'),
             ),
-
           ],
         ),
       ],
@@ -465,7 +463,10 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [AppColors.white, AppColors.lightBlue.withValues(alpha: 0.2)],
+            colors: [
+              AppColors.white,
+              AppColors.lightBlue.withValues(alpha: 0.2),
+            ],
           ),
         ),
         child: SafeArea(
@@ -534,7 +535,9 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
                                       shape: BoxShape.circle,
                                       boxShadow: [
                                         BoxShadow(
-                                          color: Colors.green.withValues(alpha: 0.3),
+                                          color: Colors.green.withValues(
+                                            alpha: 0.3,
+                                          ),
                                           blurRadius: 12,
                                           offset: const Offset(0, 4),
                                         ),
@@ -761,30 +764,39 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
                               child: SizedBox(
                                 height: 48,
                                 child: ElevatedButton(
-                                  onPressed: _isPhoneVerified || !_otpSent || _isVerifyingOtp
+                                  onPressed:
+                                      _isPhoneVerified ||
+                                          !_otpSent ||
+                                          _isVerifyingOtp
                                       ? null
                                       : _handleVerifyOtp,
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: _isPhoneVerified
                                         ? Colors.green
                                         : AppColors.primaryRed,
-                                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                    ),
                                     shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(AppBorderRadius.medium),
+                                      borderRadius: BorderRadius.circular(
+                                        AppBorderRadius.medium,
+                                      ),
                                     ),
                                   ),
                                   child: _isVerifyingOtp
                                       ? const SizedBox(
-                                    height: 18,
-                                    width: 18,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: Colors.white,
-                                    ),
-                                  )
+                                          height: 18,
+                                          width: 18,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: Colors.white,
+                                          ),
+                                        )
                                       : Text(
-                                    _isPhoneVerified ? 'Verified' : 'Verify',
-                                  ),
+                                          _isPhoneVerified
+                                              ? 'Verified'
+                                              : 'Verify',
+                                        ),
                                 ),
                               ),
                             ),
@@ -951,8 +963,8 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
                                         ),
                                         boxShadow: [
                                           BoxShadow(
-                                            color: Colors.black.withValues(alpha:
-                                              0.05,
+                                            color: Colors.black.withValues(
+                                              alpha: 0.05,
                                             ),
                                             blurRadius: 8,
                                             offset: const Offset(0, 2),
@@ -1031,8 +1043,8 @@ class _SignUpStep2ScreenState extends State<SignUp2Screen>
                                         ),
                                         boxShadow: [
                                           BoxShadow(
-                                            color: Colors.black.withValues(alpha:
-                                              0.05,
+                                            color: Colors.black.withValues(
+                                              alpha: 0.05,
                                             ),
                                             blurRadius: 8,
                                             offset: const Offset(0, 2),

@@ -24,7 +24,9 @@ class CategoryService {
   }
 
   // Get product categories under a main category (using ID)
-  Future<List<ProductCategory>> getCategoriesByMainCategoryId(int mainCategoryId) async {
+  Future<List<ProductCategory>> getCategoriesByMainCategoryId(
+    int mainCategoryId,
+  ) async {
     try {
       final response = await _apiClient.get(
         ApiConfig.categorySubcategories(mainCategoryId),
